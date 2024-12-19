@@ -27,6 +27,9 @@ const Navbar = () => {
               <Link to="/swipe" className="text-gray-700 hover:text-blue-500">
                 Swipe
               </Link>
+              <Link to="/requests" className="text-gray-700 hover:text-blue-500">
+                Requests
+              </Link>
               <Link to="/matches" className="text-gray-700 hover:text-blue-500">
                 Matches
               </Link>
