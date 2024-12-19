@@ -54,8 +54,11 @@ const RequestsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading requests...
+        </div>
       </div>
     );
   }
@@ -71,12 +74,15 @@ const RequestsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="container mx-auto px-4 py-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Connection Requests</h1>
+        <div className="bg-white neubrutalism p-6 mb-8">
+          <h1 className="text-3xl font-bold">Connection Requests</h1>
+        </div>
         
         {requests.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-white neubrutalism p-8 text-center">
+            <i className="bi bi-inbox text-4xl mb-4 text-gray-400"></i>
             <p className="text-gray-600">No pending connection requests</p>
           </div>
         ) : (
@@ -84,40 +90,37 @@ const RequestsPage = () => {
             {requests.map((request) => (
               <div 
                 key={request._id} 
-                className="bg-white rounded-lg shadow-md p-6"
+                className="bg-white neubrutalism p-6"
               >
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold">{request.username}</h2>
-                  <p className="text-gray-600">{request.bio}</p>
-                </div>
-
-                {request.techStack?.length > 0 && (
-                  <div className="mb-4">
-                    <h3 className="text-sm font-semibold text-gray-600 mb-2">Tech Stack</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {request.techStack.map((tech, index) => (
-                        <span 
-                          key={index}
-                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
+                  <h2 className="text-xl font-bold mb-2">{request.username}</h2>
+                  <p className="text-gray-600 mb-4">{request.bio}</p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {request.techStack?.map((tech, index) => (
+                      <span 
+                        key={index} 
+                        className="bg-primary text-white px-2 py-1 neubrutalism text-sm"
+                      >
+                        {tech}
+                      </span>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleRequest(request._id, 'accept')}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded"
+                    className="flex-1 bg-green-500 text-white px-4 py-2 neubrutalism hover:opacity-90"
                   >
+                    <i className="bi bi-check-lg me-2"></i>
                     Accept
                   </button>
                   <button
                     onClick={() => handleRequest(request._id, 'decline')}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded"
+                    className="flex-1 bg-red-400 text-white px-4 py-2 neubrutalism hover:opacity-90"
                   >
+                    <i className="bi bi-x-lg me-2"></i>
                     Decline
                   </button>
                 </div>

@@ -33,7 +33,14 @@ const MatchesPage = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading matches...
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -45,45 +52,56 @@ const MatchesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Your Matches</h1>
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white neubrutalism p-6 mb-8">
+          <h1 className="text-3xl font-bold">Your Matches</h1>
+        </div>
+
         {matches.length === 0 ? (
-          <div className="text-center text-gray-600">
-            No matches yet. Keep swiping to find your perfect coding partner!
+          <div className="bg-white neubrutalism p-8 text-center">
+            <i className="bi bi-heart text-4xl mb-4 text-gray-400"></i>
+            <p className="text-gray-600">No matches yet. Keep swiping to find your perfect coding partner!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {matches.map((match) => (
               <div 
                 key={match._id} 
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                className="bg-white neubrutalism p-6"
               >
-                <div className="flex items-center mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold">{match.username}</h2>
-                    <p className="text-gray-600">{match.email}</p>
-                  </div>
-                </div>
                 <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Tech Stack</label>
-                  <div className="flex flex-wrap gap-2">
+                  <h2 className="text-xl font-bold mb-1">{match.username}</h2>
+                  <p className="text-gray-600 mb-4">{match.email}</p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {match.techStack?.map((tech, index) => (
                       <span 
                         key={index} 
-                        className="bg-primary text-white px-2 py-1 rounded text-sm"
+                        className="bg-gray-200 text-black px-2 py-1 neubrutalism text-sm"
                       >
                         {tech}
                       </span>
                     ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleStartChat(match._id)}
-                  className="w-full bg-primary hover:bg-blue-600 text-white py-2 rounded"
-                >
-                  Start Chat
-                </button>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleStartChat(match._id)}
+                    className="flex-1 bg-primary px-4 py-2 neubrutalism hover:opacity-90 text-black"
+                  >
+                    <i className="bi bi-chat-dots me-2"></i>
+                    Start Chat
+                  </button>
+                  <button
+                    onClick={() => navigate(`/profile/${match._id}`)}
+                    className="flex-1 bg-gray-100 px-4 py-2 neubrutalism hover:bg-gray-200 text-black"
+                  >
+                    <i className="bi bi-person me-2"></i>
+                    View Profile
+                  </button>
+                </div>
               </div>
             ))}
           </div>

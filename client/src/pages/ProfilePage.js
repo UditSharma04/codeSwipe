@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserProfile } from '../services/authService';
+import CodeDisplay from '../components/CodeDisplay';
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
@@ -33,7 +34,14 @@ const ProfilePage = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading profile...
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -51,77 +59,101 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Your Profile</h1>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => navigate('/profile/setup')}
-              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
-            >
-              <i className="bi bi-gear-fill me-2"></i>
-              Setup Profile
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="bg-red-400 text-white px-4 py-2 neubrutalism hover:bg-red-500"
-            >
-              <i className="bi bi-box-arrow-right me-2"></i>
-              Logout
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-          <input
-            type="text"
-            value={profile?.username || ''}
-            readOnly
-            className="w-full p-2 border rounded bg-gray-100"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-          <input
-            type="email"
-            value={profile?.email || ''}
-            readOnly
-            className="w-full p-2 border rounded bg-gray-100"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Tech Stack</label>
-          <div className="flex flex-wrap gap-2">
-            {profile?.techStack?.map((tech, index) => (
-              <span 
-                key={index} 
-                className="bg-primary text-white px-2 py-1 rounded text-sm"
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white neubrutalism p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Your Profile</h1>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => navigate('/profile/setup')}
+                className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
               >
-                {tech}
-              </span>
-            ))}
+                <i className="bi bi-gear-fill me-2"></i>
+                Edit Profile
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="bg-red-400 text-white px-4 py-2 neubrutalism hover:opacity-90"
+              >
+                <i className="bi bi-box-arrow-right me-2"></i>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
-        {profile?.codeSnippet && (
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Code Snippet</label>
-            <pre className="bg-code-bg text-white p-4 rounded overflow-x-auto">
-              <code>{profile.codeSnippet.code}</code>
-            </pre>
-          </div>
-        )}
+        <div className="bg-white neubrutalism p-6">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold mb-2">Username</label>
+              <div className="bg-gray-50 p-3 neubrutalism">
+                {profile?.username}
+              </div>
+            </div>
 
-        {profile?.bio && (
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Bio</label>
-            <p className="bg-gray-100 p-2 rounded">{profile.bio}</p>
+            <div>
+              <label className="block text-sm font-bold mb-2">Email</label>
+              <div className="bg-gray-50 p-3 neubrutalism">
+                {profile?.email}
+              </div>
+            </div>
+
+            {profile?.bio && (
+              <div>
+                <label className="block text-sm font-bold mb-2">Bio</label>
+                <div className="bg-gray-50 p-3 neubrutalism">
+                  {profile.bio}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-bold mb-2">Tech Stack</label>
+              <div className="flex flex-wrap gap-2">
+                {profile?.techStack?.map((tech, index) => (
+                  <span 
+                    key={index} 
+                    className="bg-primary text-white px-3 py-1.5 neubrutalism"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {profile?.codeSnippet && (
+              <div>
+                <label className="block text-sm font-bold mb-2">Code Snippet</label>
+                <CodeDisplay 
+                  code={profile.codeSnippet.code}
+                  language={profile.codeSnippet.language}
+                />
+              </div>
+            )}
+
+            {profile?.favoriteProject && (
+              <div>
+                <label className="block text-sm font-bold mb-2">Favorite Project</label>
+                <div className="bg-gray-50 p-4 neubrutalism">
+                  <h3 className="font-bold mb-2">{profile.favoriteProject.title}</h3>
+                  <p className="text-gray-600 mb-3">{profile.favoriteProject.description}</p>
+                  {profile.favoriteProject.githubUrl && (
+                    <a 
+                      href={profile.favoriteProject.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      <i className="bi bi-github me-2"></i>
+                      View on GitHub
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
