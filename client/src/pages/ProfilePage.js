@@ -55,12 +55,22 @@ const ProfilePage = () => {
       <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Your Profile</h1>
-          <button 
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => navigate('/profile/setup')}
+              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
+            >
+              <i className="bi bi-gear-fill me-2"></i>
+              Setup Profile
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="bg-red-400 text-white px-4 py-2 neubrutalism hover:bg-red-500"
+            >
+              <i className="bi bi-box-arrow-right me-2"></i>
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="mb-4">

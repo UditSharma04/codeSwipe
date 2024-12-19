@@ -6,10 +6,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'primary': '#00ff9d',
         'code-bg': '#1E1E1E',
-        'primary': '#3B82F6',
-        'secondary': '#10B981'
-      }
+      },
+      borderWidth: {
+        '3': '3px',
+      },
+      boxShadow: {
+        'brutal': '5px 5px 0px #000',
+        'brutal-hover': '7px 7px 0px #000',
+      },
     },
   },
   plugins: [],

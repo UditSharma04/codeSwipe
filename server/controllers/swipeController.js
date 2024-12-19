@@ -1,27 +1,36 @@
 // server/controllers/swipeController.js
 const User = require('../models/User');
 
-exports.getNextUser = async (req, res) => {
+exports.getNextProfile = async (req, res) => {
   try {
-    // Find a user that the current user hasn't swiped on yet
     const currentUser = await User.findById(req.user.id);
     
-    const nextUser = await User.findOne({
+    // Find a user that:
+    // 1. Is not the current user
+    // 2. Has not been swiped on by current user
+    // 3. Has matching tech interests (optional)
+    const nextProfile = await User.findOne({
       _id: { 
-        $ne: req.user.id, 
-        $nin: currentUser.swipedUsers 
+        $ne: req.user.id,
+        $nin: currentUser.swipedUsers || []
       }
     }).select('-password');
 
-    if (!nextUser) {
-      return res.status(404).json({ message: 'No more users to swipe' });
+    if (!nextProfile) {
+      return res.status(404).json({ message: 'No more profiles available' });
     }
 
-    res.json(nextUser);
+    // Add hasLikedBack field if the shown user has already liked the current user
+    const hasLikedBack = nextProfile.swipedUsers?.includes(req.user.id);
+    
+    res.json({
+      ...nextProfile.toObject(),
+      hasLikedBack
+    });
   } catch (error) {
-    console.error('Error fetching next user:', error);
+    console.error('Error fetching next profile:', error);
     res.status(500).json({ 
-      message: 'Server error fetching next user', 
+      message: 'Server error fetching profile', 
       error: error.message 
     });
   }
@@ -30,72 +39,33 @@ exports.getNextUser = async (req, res) => {
 exports.processSwipe = async (req, res) => {
   try {
     const { targetUserId, direction } = req.body;
+    const currentUser = await User.findById(req.user.id);
     
-    // Find users without selecting interests and other unnecessary fields
-    const currentUser = await User.findById(req.user.id).select('swipedUsers matches');
-    const targetUser = await User.findById(targetUserId).select('swipedUsers matches username');
-
-    if (!targetUser) {
-      return res.status(404).json({ message: 'User not found' });
+    // Add to swiped users array
+    if (!currentUser.swipedUsers) {
+      currentUser.swipedUsers = [];
     }
-
-    // Ensure swipedUsers arrays exist
-    if (!currentUser.swipedUsers) currentUser.swipedUsers = [];
-    if (!targetUser.swipedUsers) targetUser.swipedUsers = [];
-
-    // Check if already swiped
-    if (currentUser.swipedUsers.includes(targetUserId)) {
-      return res.status(400).json({ 
-        message: 'Already swiped on this user' 
-      });
-    }
-
-    // Add to swiped users
     currentUser.swipedUsers.push(targetUserId);
-    await currentUser.save();
 
-    // Check for match if right swipe
+    // If it's a right swipe, check for match
     if (direction === 'right') {
-      const isMatch = targetUser.swipedUsers.includes(req.user.id);
-      
+      const targetUser = await User.findById(targetUserId);
+      const isMatch = targetUser.swipedUsers?.includes(req.user.id);
+
       if (isMatch) {
-        // Ensure matches arrays exist
+        // Create match for both users
         if (!currentUser.matches) currentUser.matches = [];
         if (!targetUser.matches) targetUser.matches = [];
-
-        // Create match
+        
         currentUser.matches.push(targetUserId);
         targetUser.matches.push(req.user.id);
         
-        // Save both users
-        await Promise.all([
-          User.findByIdAndUpdate(
-            currentUser._id,
-            { $set: { matches: currentUser.matches } },
-            { new: true, runValidators: false }
-          ),
-          User.findByIdAndUpdate(
-            targetUser._id,
-            { $set: { matches: targetUser.matches } },
-            { new: true, runValidators: false }
-          )
-        ]);
-
-        return res.status(200).json({ 
-          message: 'Match created!', 
-          matched: true,
-          matchedUser: {
-            _id: targetUser._id,
-            username: targetUser.username
-          }
-        });
+        await targetUser.save();
       }
     }
 
-    res.status(200).json({ 
-      message: 'Swipe processed', 
-      matched: false 
-    });
+    await currentUser.save();
+    res.json({ message: 'Swipe processed successfully' });
   } catch (error) {
     console.error('Error processing swipe:', error);
     res.status(500).json({ 
@@ -158,6 +128,29 @@ exports.respondToRequest = async (req, res) => {
     console.error('Error processing request response:', error);
     res.status(500).json({ 
       message: 'Server error processing response', 
+      error: error.message 
+    });
+  }
+};
+
+exports.getRequestCount = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    
+    // Count users who have swiped right on current user but aren't matched yet
+    const count = await User.countDocuments({
+      _id: { 
+        $ne: req.user.id,
+        $nin: currentUser.matches || []
+      },
+      swipedUsers: req.user.id
+    });
+
+    res.json({ count });
+  } catch (error) {
+    console.error('Error fetching request count:', error);
+    res.status(500).json({ 
+      message: 'Server error fetching request count', 
       error: error.message 
     });
   }

@@ -11,12 +11,11 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Your React app's URL
+  origin: 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// Add this line with other route imports
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

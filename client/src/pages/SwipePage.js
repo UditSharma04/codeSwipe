@@ -1,237 +1,192 @@
 // src/pages/SwipePage.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { getNextProfile, submitSwipe } from '../services/swipeService';
 import toast from 'react-hot-toast';
-import { Toaster } from 'react-hot-toast';
+import { useWindowSize } from '../hooks/useWindowSize';
+import CodeDisplay from '../components/CodeDisplay';
 
 const SwipePage = () => {
   const [currentProfile, setCurrentProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showMatch, setShowMatch] = useState(false);
-  const [matchedUser, setMatchedUser] = useState(null);
-  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [swipeDirection, setSwipeDirection] = useState(null);
+  const { width } = useWindowSize();
 
-  const fetchNextUser = async () => {
+  const fetchNextProfile = async () => {
     try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/swipe/next', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCurrentProfile(response.data);
-    } catch (err) {
-      console.error('Failed to fetch next user', err);
-      if (err.response?.status === 404) {
-        setCurrentProfile(null);
-        setError('No more users to swipe. Check back later!');
-      } else {
-        setError(err.response?.data?.message || 'Failed to fetch next user');
-      }
+      setIsLoading(true);
+      const profile = await getNextProfile();
+      setCurrentProfile(profile);
+    } catch (error) {
+      toast.error(error.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNextUser();
+    fetchNextProfile();
   }, []);
 
   const handleSwipe = async (direction) => {
+    if (!currentProfile || isLoading) return;
+
+    setSwipeDirection(direction);
+    
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/swipe', 
-        { 
-          targetUserId: currentProfile._id, 
-          direction 
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
-
-      // Show appropriate toast based on swipe direction
+      await submitSwipe(currentProfile._id, direction);
+      
       if (direction === 'right') {
-        toast.success('👋 Connection Request Sent!', {
-          icon: '💻',
-          duration: 2000
-        });
+        if (currentProfile.hasLikedBack) {
+          toast.success(
+            <div className="flex flex-col items-center">
+              <span className="text-lg mb-1">It's a match! 🎉</span>
+              <span className="text-sm">You and {currentProfile.username} can now chat</span>
+            </div>,
+            {
+              duration: 4000,
+              icon: '👋',
+            }
+          );
+        } else {
+          toast.success(
+            <div className="flex flex-col items-center">
+              <span className="text-lg mb-1">Connection Request Sent!</span>
+              <span className="text-sm">Waiting for {currentProfile.username} to respond</span>
+            </div>,
+            {
+              duration: 3000,
+              icon: '✨',
+            }
+          );
+        }
       } else {
-        toast.success('Maybe next time! 👨‍💻', {
-          icon: '⏭️',
-          duration: 2000
-        });
-      }
-
-      // Show match notification if it's a match
-      if (response.data.matched) {
-        setMatchedUser(response.data.matchedUser);
-        setShowMatch(true);
-        toast.success('🎉 It\'s a Match! 🎊', {
-          icon: '🤝',
-          duration: 3000
-        });
-        setTimeout(() => setShowMatch(false), 3000);
+        toast(
+          <div className="flex items-center">
+            <span>Maybe next time</span>
+          </div>,
+          {
+            icon: '👋',
+            duration: 1500,
+            style: {
+              background: '#6B7280',
+              color: '#fff',
+            },
+          }
+        );
       }
       
-      // Animate out current profile
-      setCurrentProfile(null);
-      
-      // Fetch next user after animation
-      setTimeout(fetchNextUser, 300);
-    } catch (err) {
-      console.error('Swipe failed', err);
-      toast.error('Oops! Something went wrong 😅', {
-        duration: 3000
-      });
-      setError(err.message);
+      setTimeout(() => {
+        setSwipeDirection(null);
+        fetchNextProfile();
+      }, 500);
+    } catch (error) {
+      toast.error(error.message);
+      setSwipeDirection(null);
     }
   };
 
-  // Match notification overlay
-  const MatchNotification = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.5 }}
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-    >
-      <div className="bg-white rounded-lg p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">It's a Match! 🎉</h2>
-        <p>You and {matchedUser?.username} can now chat!</p>
+  if (isLoading && !currentProfile) {
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading profiles...
+        </div>
       </div>
-    </motion.div>
-  );
+    );
+  }
+
+  if (!currentProfile) {
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6 text-center">
+          No more profiles to show right now!
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="container mx-auto px-4 py-2 sm:py-4">
+      <div className="mx-auto max-w-md">
+        <AnimatePresence>
+          <motion.div 
+            className="bg-white neubrutalism p-4 sm:p-6"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ 
+              scale: 1, 
+              opacity: 1,
+              x: swipeDirection === 'left' ? -1000 : swipeDirection === 'right' ? 1000 : 0
+            }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex flex-col">
+              <CodeDisplay 
+                code={currentProfile.codeSnippet?.code}
+                language={currentProfile.codeSnippet?.language}
+              />
 
-      <AnimatePresence>
-        {showMatch && <MatchNotification />}
-      </AnimatePresence>
-
-      <div className="max-w-2xl mx-auto p-4">
-        <AnimatePresence mode="wait">
-          {currentProfile && (
-            <motion.div
-              key={currentProfile._id}
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -300, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6"
-            >
-              {/* Code Display Section */}
-              {currentProfile.codeSnippet && currentProfile.codeSnippet.code && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Featured Code</h3>
-                  <pre className="bg-code-bg text-white p-4 rounded overflow-x-auto">
-                    <code>{currentProfile.codeSnippet.code}</code>
-                  </pre>
+              <div className="space-y-2 sm:space-y-3">
+                <h2 className="text-xl sm:text-2xl font-bold">{currentProfile.username}</h2>
+                
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {currentProfile.techStack?.map((tech, index) => (
+                    <span key={index} className="bg-primary px-2 sm:px-3 py-1 neubrutalism text-sm">
+                      {tech}
+                    </span>
+                  ))}
                 </div>
-              )}
-              
-              {/* Tech Stack Section */}
-              {currentProfile.techStack && currentProfile.techStack.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Tech Stack</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {currentProfile.techStack.map(tech => (
-                      <span key={tech} className="px-3 py-1 bg-blue-100 text-blue-800 rounded">
-                        {tech}
-                      </span>
-                    ))}
+
+                <p className="text-sm sm:text-base">{currentProfile.bio}</p>
+                
+                {currentProfile.githubUsername && (
+                  <div>
+                    <a 
+                      href={`https://github.com/${currentProfile.githubUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 hover:text-black text-sm sm:text-base"
+                    >
+                      <i className="bi bi-github me-2"></i>
+                      {currentProfile.githubUsername}
+                    </a>
                   </div>
-                </div>
-              )}
-              
-              {/* Project Section */}
-              {currentProfile.favoriteProject && currentProfile.favoriteProject.title && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Favorite Project</h3>
-                  <div className="bg-gray-50 p-4 rounded">
-                    <h4 className="font-medium">{currentProfile.favoriteProject.title}</h4>
-                    <p className="text-gray-600">{currentProfile.favoriteProject.description}</p>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* Username Section */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Developer</h3>
-                <p className="text-gray-800">{currentProfile.username}</p>
+                {currentProfile.favoriteProject && (
+                  <div className="p-2 sm:p-3 bg-gray-50 neubrutalism">
+                    <h3 className="font-bold mb-1 text-sm sm:text-base">Favorite Project</h3>
+                    <p className="text-xs sm:text-sm">{currentProfile.favoriteProject.title}</p>
+                    <p className="text-xs text-gray-600">{currentProfile.favoriteProject.description}</p>
+                  </div>
+                )}
               </div>
-
-              {/* Bio Section */}
-              {currentProfile.bio && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Bio</h3>
-                  <p className="text-gray-600">{currentProfile.bio}</p>
-                </div>
-              )}
               
-              {/* Swipe Buttons */}
-              <div className="flex justify-center gap-4">
-                <motion.button
+              <div className="flex justify-center gap-3 sm:gap-4 mt-4">
+                <motion.button 
+                  onClick={() => handleSwipe('left')} 
+                  className="bg-red-400 p-3 sm:p-4 neubrutalism"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleSwipe('left')}
-                  className="bg-red-500 text-white p-4 rounded-full shadow-lg"
+                  disabled={isLoading}
                 >
-                  Skip
+                  <i className="bi bi-x-lg text-base sm:text-xl"></i>
                 </motion.button>
-                <motion.button
+                <motion.button 
+                  onClick={() => handleSwipe('right')} 
+                  className="bg-primary p-3 sm:p-4 neubrutalism"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleSwipe('right')}
-                  className="bg-green-500 text-white p-4 rounded-full shadow-lg"
+                  disabled={isLoading}
                 >
-                  Connect
+                  <i className="bi bi-heart-fill text-base sm:text-xl"></i>
                 </motion.button>
               </div>
-            </motion.div>
-          )}
+            </div>
+          </motion.div>
         </AnimatePresence>
-
-        {loading && (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        )}
-
-        {error && !loading && (
-          <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-              <h3 className="text-xl font-semibold mb-2">
-                {error.includes('No more users') ? '👋 All Caught Up!' : 'Oops!'}
-              </h3>
-              <p className="text-gray-600">
-                {error}
-              </p>
-              {error.includes('No more users') && (
-                <button 
-                  onClick={() => {
-                    setError(null);
-                    fetchNextUser();
-                  }}
-                  className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-                >
-                  Refresh
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {!currentProfile && !loading && !error && (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-              <p className="text-gray-700">Loading next profile...</p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

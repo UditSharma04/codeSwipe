@@ -41,7 +41,8 @@ const UserSchema = new mongoose.Schema({
   }],
   codeSnippet: {
     language: String,
-    code: String
+    code: String,
+    description: String
   },
   bio: String,
   githubUsername: {

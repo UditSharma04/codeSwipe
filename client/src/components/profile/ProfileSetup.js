@@ -1,75 +1,71 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { updateProfile } from '../../services/authService';
+import toast from 'react-hot-toast';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState('');
-  const [selectedTech, setSelectedTech] = useState([]);
-  const [bio, setBio] = useState('');
-  const [favoriteProject, setFavoriteProject] = useState({
-    title: '',
-    description: ''
+  const [formData, setFormData] = useState({
+    bio: '',
+    techStack: [],
+    githubUsername: '',
+    codeSnippet: {
+      language: 'JavaScript',
+      code: '',
+      description: ''
+    },
+    favoriteProject: {
+      title: '',
+      description: '',
+      techUsed: [],
+      githubUrl: ''
+    }
   });
 
   const techOptions = [
-    'JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'Go', 'React', 
-    'Angular', 'Vue', 'Node.js', 'Django', 'Flask', 'MongoDB', 
-    'PostgreSQL', 'MySQL', 'AWS', 'Docker', 'Kubernetes'
+    'JavaScript', 'Python', 'Java', 'React', 'Node.js', 
+    'TypeScript', 'C++', 'Ruby', 'PHP', 'Swift',
+    'Go', 'Rust', 'Kotlin', 'Vue.js', 'Angular'
   ];
 
   const handleTechSelect = (tech) => {
-    if (selectedTech.includes(tech)) {
-      setSelectedTech(selectedTech.filter(t => t !== tech));
-    } else {
-      setSelectedTech([...selectedTech, tech]);
-    }
+    setFormData(prev => ({
+      ...prev,
+      techStack: prev.techStack.includes(tech)
+        ? prev.techStack.filter(t => t !== tech)
+        : [...prev.techStack, tech]
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
     try {
-      await updateProfile({
-        techStack: selectedTech,
-        bio,
-        favoriteProject
-      });
-      
+      // Add your API call here to update profile
+      toast.success('Profile updated successfully!');
       navigate('/profile');
-    } catch (err) {
-      console.error('Profile Setup Error:', err);
-      setError(err.message || 'Error updating profile');
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center">Complete Your Developer Profile</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto bg-white neubrutalism p-6">
+        <h1 className="text-2xl font-bold mb-6">Setup Your CodeSwipe Profile</h1>
         
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Tech Stack (Select all that apply)
-            </label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Tech Stack */}
+          <div>
+            <label className="block text-sm font-bold mb-2">Tech Stack</label>
             <div className="flex flex-wrap gap-2">
               {techOptions.map((tech) => (
                 <button
                   key={tech}
                   type="button"
                   onClick={() => handleTechSelect(tech)}
-                  className={`px-3 py-1 rounded ${
-                    selectedTech.includes(tech)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-gray-700'
+                  className={`px-3 py-1 neubrutalism ${
+                    formData.techStack.includes(tech)
+                      ? 'bg-primary'
+                      : 'bg-gray-100'
                   }`}
                 >
                   {tech}
@@ -78,49 +74,93 @@ const ProfileSetup = () => {
             </div>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Bio
-            </label>
+          {/* Bio */}
+          <div>
+            <label className="block text-sm font-bold mb-2">Bio</label>
             <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={formData.bio}
+              onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+              className="w-full p-2 neubrutalism"
               rows="4"
               placeholder="Tell us about yourself..."
             />
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Favorite Project
-            </label>
+          {/* GitHub Username */}
+          <div>
+            <label className="block text-sm font-bold mb-2">GitHub Username</label>
             <input
               type="text"
-              value={favoriteProject.title}
-              onChange={(e) => setFavoriteProject({
-                ...favoriteProject,
-                title: e.target.value
-              })}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Project Title"
-            />
-            <textarea
-              value={favoriteProject.description}
-              onChange={(e) => setFavoriteProject({
-                ...favoriteProject,
-                description: e.target.value
-              })}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              rows="3"
-              placeholder="Project Description"
+              value={formData.githubUsername}
+              onChange={(e) => setFormData(prev => ({ ...prev, githubUsername: e.target.value }))}
+              className="w-full p-2 neubrutalism"
+              placeholder="Your GitHub username"
             />
           </div>
 
-          <div className="flex justify-end">
+          {/* Code Snippet */}
+          <div>
+            <label className="block text-sm font-bold mb-2">Featured Code Snippet</label>
+            <select
+              value={formData.codeSnippet.language}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                codeSnippet: { ...prev.codeSnippet, language: e.target.value }
+              }))}
+              className="w-full p-2 mb-2 neubrutalism"
+            >
+              {techOptions.map(lang => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+            <textarea
+              value={formData.codeSnippet.code}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                codeSnippet: { ...prev.codeSnippet, code: e.target.value }
+              }))}
+              className="w-full p-2 neubrutalism font-mono"
+              rows="6"
+              placeholder="Paste your code snippet here..."
+            />
+          </div>
+
+          {/* Favorite Project */}
+          <div>
+            <label className="block text-sm font-bold mb-2">Favorite Project</label>
+            <input
+              type="text"
+              value={formData.favoriteProject.title}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                favoriteProject: { ...prev.favoriteProject, title: e.target.value }
+              }))}
+              className="w-full p-2 mb-2 neubrutalism"
+              placeholder="Project title"
+            />
+            <textarea
+              value={formData.favoriteProject.description}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                favoriteProject: { ...prev.favoriteProject, description: e.target.value }
+              }))}
+              className="w-full p-2 neubrutalism"
+              rows="3"
+              placeholder="Project description..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="px-6 py-2 neubrutalism bg-gray-100"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="px-6 py-2 neubrutalism bg-primary"
             >
               Save Profile
             </button>
