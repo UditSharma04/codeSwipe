@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 const SwipePage = () => {
   const [currentProfile, setCurrentProfile] = useState(null);
@@ -50,11 +52,28 @@ const SwipePage = () => {
         }
       );
 
+      // Show appropriate toast based on swipe direction
+      if (direction === 'right') {
+        toast.success('👋 Connection Request Sent!', {
+          icon: '💻',
+          duration: 2000
+        });
+      } else {
+        toast.success('Maybe next time! 👨‍💻', {
+          icon: '⏭️',
+          duration: 2000
+        });
+      }
+
       // Show match notification if it's a match
       if (response.data.matched) {
         setMatchedUser(response.data.matchedUser);
         setShowMatch(true);
-        setTimeout(() => setShowMatch(false), 3000); // Hide after 3 seconds
+        toast.success('🎉 It\'s a Match! 🎊', {
+          icon: '🤝',
+          duration: 3000
+        });
+        setTimeout(() => setShowMatch(false), 3000);
       }
       
       // Animate out current profile
@@ -64,6 +83,9 @@ const SwipePage = () => {
       setTimeout(fetchNextUser, 300);
     } catch (err) {
       console.error('Swipe failed', err);
+      toast.error('Oops! Something went wrong 😅', {
+        duration: 3000
+      });
       setError(err.message);
     }
   };
@@ -85,6 +107,8 @@ const SwipePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <Toaster position="top-center" reverseOrder={false} />
+
       <AnimatePresence>
         {showMatch && <MatchNotification />}
       </AnimatePresence>

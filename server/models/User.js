@@ -57,7 +57,16 @@ const UserSchema = new mongoose.Schema({
   },
   interests: [{
     type: String,
-    enum: ['Frontend', 'Backend', 'Mobile', 'AI/ML', 'DevOps', 'Security', 'Other']
+    enum: [
+      'Frontend', 
+      'Backend', 
+      'Mobile', 
+      'AI/ML', 
+      'DevOps', 
+      'Security', 
+      'Cloud Computing',
+      'Other'
+    ]
   }],
   availability: {
     type: String,

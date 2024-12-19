@@ -30,8 +30,10 @@ exports.getNextUser = async (req, res) => {
 exports.processSwipe = async (req, res) => {
   try {
     const { targetUserId, direction } = req.body;
-    const currentUser = await User.findById(req.user.id);
-    const targetUser = await User.findById(targetUserId);
+    
+    // Find users without selecting interests and other unnecessary fields
+    const currentUser = await User.findById(req.user.id).select('swipedUsers matches');
+    const targetUser = await User.findById(targetUserId).select('swipedUsers matches username');
 
     if (!targetUser) {
       return res.status(404).json({ message: 'User not found' });
@@ -65,9 +67,18 @@ exports.processSwipe = async (req, res) => {
         currentUser.matches.push(targetUserId);
         targetUser.matches.push(req.user.id);
         
+        // Save both users
         await Promise.all([
-          currentUser.save(),
-          targetUser.save()
+          User.findByIdAndUpdate(
+            currentUser._id,
+            { $set: { matches: currentUser.matches } },
+            { new: true, runValidators: false }
+          ),
+          User.findByIdAndUpdate(
+            targetUser._id,
+            { $set: { matches: targetUser.matches } },
+            { new: true, runValidators: false }
+          )
         ]);
 
         return res.status(200).json({ 
@@ -89,6 +100,64 @@ exports.processSwipe = async (req, res) => {
     console.error('Error processing swipe:', error);
     res.status(500).json({ 
       message: 'Server error processing swipe', 
+      error: error.message 
+    });
+  }
+};
+
+exports.getConnectionRequests = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    
+    // Find users who have swiped right on current user but aren't matched yet
+    const requests = await User.find({
+      _id: { $ne: req.user.id },
+      swipedUsers: req.user.id,
+      _id: { $nin: currentUser.matches }
+    }).select('-password');
+
+    res.json(requests);
+  } catch (error) {
+    console.error('Error fetching requests:', error);
+    res.status(500).json({ 
+      message: 'Server error fetching requests', 
+      error: error.message 
+    });
+  }
+};
+
+exports.respondToRequest = async (req, res) => {
+  try {
+    const { targetUserId, action } = req.body;
+    const currentUser = await User.findById(req.user.id);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!targetUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (action === 'accept') {
+      // Create match
+      currentUser.matches.push(targetUserId);
+      targetUser.matches.push(req.user.id);
+      
+      await Promise.all([
+        currentUser.save(),
+        targetUser.save()
+      ]);
+
+      res.json({ message: 'Connection accepted' });
+    } else {
+      // Decline by adding to swiped users without creating match
+      currentUser.swipedUsers.push(targetUserId);
+      await currentUser.save();
+      
+      res.json({ message: 'Request declined' });
+    }
+  } catch (error) {
+    console.error('Error processing request response:', error);
+    res.status(500).json({ 
+      message: 'Server error processing response', 
       error: error.message 
     });
   }

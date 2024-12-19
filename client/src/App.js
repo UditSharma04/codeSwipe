@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 // Import components
 import Navbar from './components/layout/Navbar';
@@ -14,6 +15,7 @@ import MatchesPage from './pages/MatchesPage';
 import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
 import ProfileSetup from './components/profile/ProfileSetup';
+import RequestsPage from './pages/RequestsPage';
 
 // Private Route Component
 const PrivateRoute = ({ children }) => {
@@ -98,10 +100,42 @@ function App() {
                 } 
               />
               
+              <Route 
+                path="/requests" 
+                element={
+                  <PrivateRoute>
+                    <RequestsPage />
+                  </PrivateRoute>
+                } 
+              />
+              
               {/* Catch-all route */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
+          <Toaster 
+            position="top-center"
+            toastOptions={{
+              // Default options for all toasts
+              duration: 2000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+              success: {
+                duration: 2000,
+                style: {
+                  background: '#22c55e',
+                },
+              },
+              error: {
+                duration: 3000,
+                style: {
+                  background: '#ef4444',
+                },
+              },
+            }}
+          />
         </div>
       </Router>
     </AuthProvider>
