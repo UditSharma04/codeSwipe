@@ -11,23 +11,36 @@ const API = axios.create({
 
 export const register = async (userData) => {
   try {
-    const response = await API.post('/register', userData);
+    const response = await API.post('/register', {
+      ...userData,
+      techStack: [], // Array of technologies
+      githubUsername: '', // Optional GitHub integration
+      favoriteProject: {
+        title: '',
+        description: '',
+        techUsed: [],
+        githubUrl: ''
+      },
+      interests: [], // What they like working on
+      codeSnippet: {
+        language: '',
+        code: '',
+        description: ''
+      }
+    });
     return response.data;
   } catch (error) {
-    console.error('Registration Error:', error.response?.data || error.message);
-    
-    throw new Error(
-      error.response?.data?.message || 
-      error.message || 
-      'Registration failed'
-    );
+    throw new Error(error.response?.data?.message || 'Registration failed');
   }
 };
 
 export const login = async (credentials) => {
   try {
     const response = await API.post('/login', credentials);
-    return response.data.token;
+    return {
+      token: response.data.token,
+      isProfileComplete: response.data.isProfileComplete
+    };
   } catch (error) {
     console.error('Login Error:', error.response?.data || error.message);
     throw new Error(

@@ -16,16 +16,20 @@ const Login = () => {
     setError('');
 
     try {
-      const token = await login({ email, password });
+      const response = await login({ email, password });
       
       // Store token in localStorage
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', response.token);
       
       // Update auth context
-      authLogin(token);
+      authLogin(response.token);
       
-      // Redirect to profile or home page
-      navigate('/profile');
+      // Redirect based on profile completion
+      if (response.isProfileComplete) {
+        navigate('/swipe');
+      } else {
+        navigate('/profile/setup');
+      }
     } catch (err) {
       console.error('Login Error:', err);
       setError(err.message || 'Login failed');

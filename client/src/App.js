@@ -13,6 +13,7 @@ import SwipePage from './pages/SwipePage';
 import MatchesPage from './pages/MatchesPage';
 import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
+import ProfileSetup from './components/profile/ProfileSetup';
 
 // Private Route Component
 const PrivateRoute = ({ children }) => {
@@ -72,6 +73,15 @@ function App() {
                 element={
                   <PrivateRoute>
                     <ChatPage />
+                  </PrivateRoute>
+                } 
+              />
+              
+              <Route 
+                path="/profile/setup" 
+                element={
+                  <PrivateRoute>
+                    <ProfileSetup />
                   </PrivateRoute>
                 } 
               />

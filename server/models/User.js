@@ -37,7 +37,30 @@ const UserSchema = new mongoose.Schema({
     language: String,
     code: String
   },
-  bio: String
+  bio: String,
+  githubUsername: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  favoriteProject: {
+    title: String,
+    description: String,
+    techUsed: [String],
+    githubUrl: String
+  },
+  interests: [{
+    type: String,
+    enum: ['Frontend', 'Backend', 'Mobile', 'AI/ML', 'DevOps', 'Security', 'Other']
+  }],
+  availability: {
+    type: String,
+    enum: ['Looking for collaborators', 'Open to chat', 'Currently busy']
+  },
+  experience: {
+    type: String,
+    enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
+  }
 }, {
   timestamps: true
 });

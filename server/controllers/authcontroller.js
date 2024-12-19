@@ -3,37 +3,31 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// Regenerate comparePassword functionality
+// Helper functions
 const comparePassword = async (candidatePassword, hashedPassword) => {
-  // Add null checks
   if (!candidatePassword || !hashedPassword) {
     return false;
   }
   return await bcrypt.compare(candidatePassword, hashedPassword);
 };
 
-// Regenerate password hashing
 const hashPassword = async (password) => {
   return await bcrypt.hash(password, 10);
 };
 
-exports.registerUser = async (req, res) => {
+// Controller functions
+const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Validate input
     if (!username || !email || !password) {
       return res.status(400).json({ 
         message: 'Please provide username, email, and password' 
       });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ 
-      $or: [
-        { email }, 
-        { username }
-      ] 
+      $or: [{ email }, { username }] 
     });
 
     if (existingUser) {
@@ -42,15 +36,13 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    // Hash the password
     const hashedPassword = await hashPassword(password);
 
-    // Create new user
     const user = new User({
-      username: username.trim(), // Trim whitespace
-      email: email.trim().toLowerCase(), // Normalize email
+      username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
-      techStack: [], // Initialize empty tech stack
+      techStack: [],
       codeSnippet: null,
       bio: '',
       matches: [],
@@ -59,7 +51,6 @@ exports.registerUser = async (req, res) => {
 
     await user.save();
 
-    // Generate token
     const token = jwt.sign(
       { id: user._id }, 
       process.env.JWT_SECRET, 
@@ -75,7 +66,6 @@ exports.registerUser = async (req, res) => {
   } catch (error) {
     console.error('Registration Error:', error);
     
-    // Handle duplicate key error
     if (error.code === 11000) {
       return res.status(400).json({ 
         message: 'Username or email already exists',
@@ -90,18 +80,16 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({ 
         message: 'Please provide email and password' 
       });
     }
 
-    // Find user by email
     const user = await User.findOne({ 
       email: email.trim().toLowerCase() 
     });
@@ -110,14 +98,12 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Compare passwords
     const isMatch = await comparePassword(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
     const token = jwt.sign(
       { id: user._id }, 
       process.env.JWT_SECRET, 
@@ -139,56 +125,54 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Other methods remain the same
-
-exports.getUserProfile = async (req, res) => {
+const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
     res.json(user);
   } catch (error) {
-    console.error('Profile Fetch Error:', error);
     res.status(500).json({ 
-      message: 'Server error fetching profile', 
+      message: 'Error fetching profile',
       error: error.message 
     });
   }
 };
 
-exports.updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res) => {
   try {
-    const { techStack, codeSnippet, bio } = req.body;
-
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update profile fields
-    if (techStack) user.techStack = techStack;
-    if (codeSnippet) user.codeSnippet = codeSnippet;
-    if (bio) user.bio = bio;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $set: {
+          ...req.body,
+          password: undefined
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('-password');
 
-    await user.save();
-
-    res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      techStack: user.techStack,
-      codeSnippet: user.codeSnippet,
-      bio: user.bio
-    });
+    res.json(updatedUser);
   } catch (error) {
-    console.error('Profile Update Error:', error);
+    console.error('Profile update error:', error);
     res.status(500).json({ 
-      message: 'Server error updating profile', 
+      message: 'Error updating profile',
       error: error.message 
     });
   }
+};
+
+// Export all functions
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile
 };
