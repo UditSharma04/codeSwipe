@@ -13,15 +13,15 @@ export const register = async (userData) => {
   try {
     const response = await API.post('/register', {
       ...userData,
-      techStack: [], // Array of technologies
-      githubUsername: '', // Optional GitHub integration
+      techStack: [],
+      githubUsername: '',
       favoriteProject: {
         title: '',
         description: '',
         techUsed: [],
         githubUrl: ''
       },
-      interests: [], // What they like working on
+      interests: [],
       codeSnippet: {
         language: '',
         code: '',
@@ -64,6 +64,23 @@ export const getUserProfile = async () => {
       error.response?.data?.message || 
       error.message || 
       'Failed to fetch profile'
+    );
+  }
+};
+
+export const updateProfile = async (profileData) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await API.put('/profile', profileData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Profile Update Error:', error.response?.data || error.message);
+    throw new Error(
+      error.response?.data?.message || 
+      error.message || 
+      'Failed to update profile'
     );
   }
 };

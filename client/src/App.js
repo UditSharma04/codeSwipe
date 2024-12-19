@@ -1,6 +1,6 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
 
@@ -21,12 +21,24 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+// Navbar wrapper component that hides navbar on specific routes
+const NavbarWrapper = () => {
+  const location = useLocation();
+  const hideNavbarRoutes = ['/register', '/login']; // Added '/login' to hide navbar routes
+  
+  if (hideNavbarRoutes.includes(location.pathname)) {
+    return null;
+  }
+  
+  return <Navbar />;
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
+          <NavbarWrapper />
           <div className="flex-grow">
             <Routes>
               <Route path="/login" element={<Login />} />

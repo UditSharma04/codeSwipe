@@ -22,14 +22,20 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  swipedUsers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  matches: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  swipedUsers: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    default: []
+  },
+  matches: {
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    default: []
+  },
   techStack: [{
     type: String
   }],
