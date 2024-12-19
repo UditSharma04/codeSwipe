@@ -19,3 +19,31 @@ exports.getMatches = async (req, res) => {
     });
   }
 };
+
+exports.getMatchProfile = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    
+    // Verify this is actually a match
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser.matches.includes(matchId)) {
+      return res.status(403).json({ message: 'Not authorized to view this profile' });
+    }
+
+    const matchProfile = await User.findById(matchId)
+      .select('-password -swipedUsers -matches')
+      .lean();
+
+    if (!matchProfile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json(matchProfile);
+  } catch (error) {
+    console.error('Error fetching match profile:', error);
+    res.status(500).json({ 
+      message: 'Server error fetching profile', 
+      error: error.message 
+    });
+  }
+};
