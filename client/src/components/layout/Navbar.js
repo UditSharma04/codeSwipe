@@ -14,58 +14,45 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-primary">
+            <Link to="/" className="text-2xl font-bold text-blue-500">
               CodeSwipe
             </Link>
           </div>
-          <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <Link 
-                  to="/swipe" 
-                  className="text-gray-700 hover:bg-gray-100 px-3 py-2 rounded"
-                >
-                  Swipe
-                </Link>
-                <Link 
-                  to="/matches" 
-                  className="text-gray-700 hover:bg-gray-100 px-3 py-2 rounded"
-                >
-                  Matches
-                </Link>
-                <Link 
-                  to="/profile" 
-                  className="text-gray-700 hover:bg-gray-100 px-3 py-2 rounded"
-                >
-                  Profile
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  to="/login" 
-                  className="text-gray-700 hover:bg-gray-100 px-3 py-2 rounded"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="bg-primary text-white px-3 py-2 rounded hover:bg-blue-600"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
+          
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <Link to="/swipe" className="text-gray-700 hover:text-blue-500">
+                Swipe
+              </Link>
+              <Link to="/matches" className="text-gray-700 hover:text-blue-500">
+                Matches
+              </Link>
+              <Link to="/profile" className="text-gray-700 hover:text-blue-500">
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <Link to="/login" className="text-gray-700 hover:text-blue-500">
+                Login
+              </Link>
+              <Link 
+                to="/register" 
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

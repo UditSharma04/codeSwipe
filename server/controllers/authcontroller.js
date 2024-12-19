@@ -148,14 +148,19 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Update only allowed fields
+    const allowedUpdates = ['techStack', 'bio', 'favoriteProject'];
+    const updates = {};
+    
+    Object.keys(req.body).forEach(key => {
+      if (allowedUpdates.includes(key)) {
+        updates[key] = req.body[key];
+      }
+    });
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
-      {
-        $set: {
-          ...req.body,
-          password: undefined
-        }
-      },
+      { $set: updates },
       { new: true, runValidators: true }
     ).select('-password');
 

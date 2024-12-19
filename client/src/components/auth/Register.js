@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../../services/authService';
-import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -10,8 +9,8 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,16 +24,15 @@ const Register = () => {
 
     try {
       const userData = { username, email, password };
-      const response = await register(userData);
+      await register(userData);
       
-      // Store the token in localStorage
-      localStorage.setItem('token', response.token);
+      // Show success toast
+      setShowToast(true);
       
-      // Update auth context
-      login(response.token);
-      
-      // Redirect to profile page
-      navigate('/profile');
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err) {
       console.error('Registration Error:', err);
       setError(err.message || 'Registration failed');
@@ -42,7 +40,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 relative">
+      {/* Success Toast */}
+      {showToast && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg animate-fade-in-out">
+          Registration successful! Redirecting to login...
+        </div>
+      )}
+
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Create CodeSwipe Account</h2>
         {error && (

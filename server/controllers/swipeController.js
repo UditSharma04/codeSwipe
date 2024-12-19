@@ -37,22 +37,38 @@ exports.processSwipe = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Ensure swipedUsers arrays exist
+    if (!currentUser.swipedUsers) currentUser.swipedUsers = [];
+    if (!targetUser.swipedUsers) targetUser.swipedUsers = [];
+
+    // Check if already swiped
+    if (currentUser.swipedUsers.includes(targetUserId)) {
+      return res.status(400).json({ 
+        message: 'Already swiped on this user' 
+      });
+    }
+
     // Add to swiped users
     currentUser.swipedUsers.push(targetUserId);
     await currentUser.save();
 
     // Check for match if right swipe
     if (direction === 'right') {
-      // Check if target user has already swiped right on current user
       const isMatch = targetUser.swipedUsers.includes(req.user.id);
       
       if (isMatch) {
+        // Ensure matches arrays exist
+        if (!currentUser.matches) currentUser.matches = [];
+        if (!targetUser.matches) targetUser.matches = [];
+
         // Create match
         currentUser.matches.push(targetUserId);
         targetUser.matches.push(req.user.id);
         
-        await currentUser.save();
-        await targetUser.save();
+        await Promise.all([
+          currentUser.save(),
+          targetUser.save()
+        ]);
 
         return res.status(200).json({ 
           message: 'Match created!', 
