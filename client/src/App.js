@@ -16,6 +16,7 @@ import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
 import ProfileSetup from './components/profile/ProfileSetup';
 import RequestsPage from './pages/RequestsPage';
+import MatchProfilePage from './pages/MatchProfilePage';
 
 // Private Route Component
 const PrivateRoute = ({ children }) => {
@@ -105,6 +106,15 @@ function App() {
                 element={
                   <PrivateRoute>
                     <RequestsPage />
+                  </PrivateRoute>
+                } 
+              />
+              
+              <Route 
+                path="/profile/:matchId" 
+                element={
+                  <PrivateRoute>
+                    <MatchProfilePage />
                   </PrivateRoute>
                 } 
               />

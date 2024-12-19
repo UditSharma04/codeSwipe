@@ -45,3 +45,11 @@ body {
 body.menu-open {
   overflow: hidden;
 }
+
+.shadow-brutal {
+  @apply shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
+}
+
+.shadow-brutal-hover {
+  @apply shadow-[6px_6px_0px_0px_rgba(0,0,0,1)];
+}
