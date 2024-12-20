@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { socket } from '../services/socket';
+import { getRequestCount } from '../services/swipeService';
 
 const RequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -44,8 +46,18 @@ const RequestsPage = () => {
           : '👋 Request declined'
       );
 
-      // Refresh requests list
-      fetchRequests();
+      // Remove the request from the list immediately
+      setRequests(prevRequests => 
+        prevRequests.filter(request => request._id !== targetUserId)
+      );
+
+      // Update request count in Navbar
+      const newCount = await getRequestCount();
+      socket.emit('update_request_count', { 
+        userId: user._id,
+        count: newCount 
+      });
+
     } catch (err) {
       console.error('Failed to process request', err);
       toast.error('Failed to process request');
@@ -76,8 +88,8 @@ const RequestsPage = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white neubrutalism p-6 mb-8">
-          <h1 className="text-3xl font-bold">Connection Requests</h1>
+        <div className="bg-primary neubrutalism p-6 mb-8">
+          <h1 className="text-3xl font-bold text-black">Connection Requests</h1>
         </div>
         
         {requests.length === 0 ? (
@@ -90,7 +102,7 @@ const RequestsPage = () => {
             {requests.map((request) => (
               <div 
                 key={request._id} 
-                className="bg-white neubrutalism p-6"
+                className="bg-white neubrutalism p-6 hover:shadow-brutal-hover transition-all duration-200"
               >
                 <div className="mb-4">
                   <h2 className="text-xl font-bold mb-2">{request.username}</h2>
@@ -100,7 +112,7 @@ const RequestsPage = () => {
                     {request.techStack?.map((tech, index) => (
                       <span 
                         key={index} 
-                        className="bg-primary text-white px-2 py-1 neubrutalism text-sm"
+                        className="bg-gray-200 text-black px-2 py-1 neubrutalism text-sm"
                       >
                         {tech}
                       </span>
@@ -111,14 +123,14 @@ const RequestsPage = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleRequest(request._id, 'accept')}
-                    className="flex-1 bg-green-500 text-white px-4 py-2 neubrutalism hover:opacity-90"
+                    className="flex-1 bg-primary text-black px-4 py-2 neubrutalism hover:opacity-90 font-medium"
                   >
                     <i className="bi bi-check-lg me-2"></i>
                     Accept
                   </button>
                   <button
                     onClick={() => handleRequest(request._id, 'decline')}
-                    className="flex-1 bg-red-400 text-white px-4 py-2 neubrutalism hover:opacity-90"
+                    className="flex-1 bg-gray-200 text-black px-4 py-2 neubrutalism hover:bg-gray-300"
                   >
                     <i className="bi bi-x-lg me-2"></i>
                     Decline

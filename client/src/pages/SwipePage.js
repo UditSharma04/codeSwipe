@@ -8,19 +8,31 @@ import CodeDisplay from '../components/CodeDisplay';
 
 const SwipePage = () => {
   const [currentProfile, setCurrentProfile] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [noMoreProfiles, setNoMoreProfiles] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState(null);
   const { width } = useWindowSize();
 
   const fetchNextProfile = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       const profile = await getNextProfile();
-      setCurrentProfile(profile);
+      if (profile) {
+        setCurrentProfile(profile);
+        setNoMoreProfiles(false);
+      } else {
+        setCurrentProfile(null);
+        setNoMoreProfiles(true);
+      }
     } catch (error) {
-      toast.error(error.message);
+      if (error.message === 'No more profiles available') {
+        setNoMoreProfiles(true);
+        setCurrentProfile(null);
+      } else {
+        toast.error(error.message);
+      }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -29,7 +41,7 @@ const SwipePage = () => {
   }, []);
 
   const handleSwipe = async (direction) => {
-    if (!currentProfile || isLoading) return;
+    if (!currentProfile || loading) return;
 
     setSwipeDirection(direction);
     
@@ -86,12 +98,36 @@ const SwipePage = () => {
     }
   };
 
-  if (isLoading && !currentProfile) {
+  if (loading && !currentProfile) {
     return (
       <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
         <div className="bg-white neubrutalism p-4 sm:p-6">
           <i className="bi bi-code-slash text-xl me-2"></i>
           Loading profiles...
+        </div>
+      </div>
+    );
+  }
+
+  if (noMoreProfiles) {
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-8 text-center">
+          <i className="bi bi-emoji-dizzy text-4xl mb-4 text-gray-400"></i>
+          <h2 className="text-xl font-bold mb-2">No More Profiles</h2>
+          <p className="text-gray-600">
+            Looks like you've seen all available profiles!
+          </p>
+          <p className="text-gray-500 text-sm mt-2">
+            Check back later for new developers
+          </p>
+          <button
+            onClick={fetchNextProfile}
+            className="mt-4 bg-primary px-4 py-2 neubrutalism hover:opacity-90"
+          >
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Refresh
+          </button>
         </div>
       </div>
     );
@@ -170,7 +206,7 @@ const SwipePage = () => {
                   className="bg-red-400 p-3 sm:p-4 neubrutalism"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
                   <i className="bi bi-x-lg text-base sm:text-xl"></i>
                 </motion.button>
@@ -179,7 +215,7 @@ const SwipePage = () => {
                   className="bg-primary p-3 sm:p-4 neubrutalism"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  disabled={isLoading}
+                  disabled={loading}
                 >
                   <i className="bi bi-heart-fill text-base sm:text-xl"></i>
                 </motion.button>

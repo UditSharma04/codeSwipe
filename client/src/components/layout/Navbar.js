@@ -5,12 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getRequestCount } from '../../services/swipeService';
 import Badge from '../ui/Badge';
 import logo from '../../images/logo.png';
+import { socket } from '../../services/socket';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
+  const { user } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
@@ -54,6 +57,18 @@ const Navbar = () => {
       document.body.classList.remove('menu-open');
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    socket.on('request_count_updated', (data) => {
+      if (data.userId === user?._id) {
+        setRequestCount(data.count);
+      }
+    });
+
+    return () => {
+      socket.off('request_count_updated');
+    };
+  }, [user?._id]);
 
   const renderButton = (item) => (
     <button 

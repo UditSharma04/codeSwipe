@@ -5,10 +5,6 @@ exports.getNextProfile = async (req, res) => {
   try {
     const currentUser = await User.findById(req.user.id);
     
-    // Find a user that:
-    // 1. Is not the current user
-    // 2. Has not been swiped on by current user
-    // 3. Has matching tech interests (optional)
     const nextProfile = await User.findOne({
       _id: { 
         $ne: req.user.id,
@@ -17,10 +13,12 @@ exports.getNextProfile = async (req, res) => {
     }).select('-password');
 
     if (!nextProfile) {
-      return res.status(404).json({ message: 'No more profiles available' });
+      return res.status(404).json({ 
+        message: 'No more profiles available',
+        noMoreProfiles: true
+      });
     }
 
-    // Add hasLikedBack field if the shown user has already liked the current user
     const hasLikedBack = nextProfile.swipedUsers?.includes(req.user.id);
     
     res.json({
@@ -108,6 +106,9 @@ exports.respondToRequest = async (req, res) => {
 
     if (action === 'accept') {
       // Create match
+      if (!currentUser.matches) currentUser.matches = [];
+      if (!targetUser.matches) targetUser.matches = [];
+      
       currentUser.matches.push(targetUserId);
       targetUser.matches.push(req.user.id);
       
@@ -118,9 +119,19 @@ exports.respondToRequest = async (req, res) => {
 
       res.json({ message: 'Connection accepted' });
     } else {
-      // Decline by adding to swiped users without creating match
+      // Decline by adding to swiped users and removing from target's swipedUsers
+      if (!currentUser.swipedUsers) currentUser.swipedUsers = [];
       currentUser.swipedUsers.push(targetUserId);
-      await currentUser.save();
+      
+      // Remove current user from target's swipedUsers
+      targetUser.swipedUsers = targetUser.swipedUsers.filter(
+        id => id.toString() !== currentUser._id.toString()
+      );
+
+      await Promise.all([
+        currentUser.save(),
+        targetUser.save()
+      ]);
       
       res.json({ message: 'Request declined' });
     }

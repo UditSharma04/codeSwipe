@@ -33,6 +33,10 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
+
+  socket.on('update_request_count', (data) => {
+    io.emit('request_count_updated', data);
+  });
 });
 
 // Connect to MongoDB

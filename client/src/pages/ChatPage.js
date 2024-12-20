@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import io from 'socket.io-client';
+import EmojiPicker from 'emoji-picker-react';
 
 const ChatPage = () => {
   const [matches, setMatches] = useState([]);
@@ -13,6 +14,7 @@ const ChatPage = () => {
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const { user } = useAuth();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Initialize socket connection
   useEffect(() => {
@@ -47,7 +49,7 @@ const ChatPage = () => {
       
       // Join the chat room
       socket.emit('join_chat', chatId);
-
+      setNewMessage('');
       // Fetch chat history
       const fetchMessages = async () => {
         try {
@@ -109,6 +111,23 @@ const ChatPage = () => {
 
     setNewMessage('');
   };
+
+  // Add emoji to message
+  const onEmojiClick = (emojiObject) => {
+    setNewMessage(prev => prev + emojiObject.emoji);
+  };
+
+  // Add a click outside handler to close the emoji picker
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmojiPicker && !event.target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmojiPicker]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -185,20 +204,44 @@ const ChatPage = () => {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="flex gap-2">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your message..."
-                  className="flex-1 p-3 neubrutalism"
-                />
-                <button 
-                  type="submit" 
-                  className="px-6 py-3 bg-primary neubrutalism hover:opacity-90"
-                >
-                  Send
-                </button>
+              <form onSubmit={handleSendMessage} className="relative">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type your message..."
+                      className="w-full p-3 pr-10 neubrutalism"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xl hover:scale-110 transition-transform"
+                    >
+                      😊
+                    </button>
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="px-6 py-3 bg-primary neubrutalism hover:opacity-90 text-black"
+                  >
+                    Send
+                  </button>
+                </div>
+
+                {/* Emoji Picker */}
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full right-0 mb-2 emoji-picker-container">
+                    <div className="neubrutalism bg-white p-2">
+                      <EmojiPicker
+                        onEmojiClick={onEmojiClick}
+                        width={300}
+                        height={400}
+                      />
+                    </div>
+                  </div>
+                )}
               </form>
             </>
           ) : (
