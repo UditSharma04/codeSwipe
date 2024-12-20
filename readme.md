@@ -1,12 +1,11 @@
 # 💻 CodeSwipe - Developer Matching Platform
 
 <div align="center">
-  <img src="docs/assets/codeswipe-logo.png" alt="CodeSwipe Logo" width="200"/>
+  <img src="server/images/logo.png" alt="CodeSwipe Logo" width="200"/>
   <p><em>Where Code Meets Connection</em></p>
 </div>
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Hackathon Ready](https://img.shields.io/badge/Hackathon-Ready-success)](https://github.com/yourusername/codeswipe)
 
 ## 🚀 Overview
