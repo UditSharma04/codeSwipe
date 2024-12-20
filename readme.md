@@ -8,118 +8,128 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Hackathon Ready](https://img.shields.io/badge/Hackathon-Ready-success)](https://github.com/yourusername/codeswipe)
 
+---
+
 ## 🚀 Overview
 
-CodeSwipe is an innovative developer matching platform that helps programmers find their ideal coding partners through an intuitive swipe-based interface. Think of it as "Tinder for Developers" - but instead of dating profiles, users match based on coding skills, tech stacks, and project interests.
+CodeSwipe is an innovative developer matching platform that connects programmers with their ideal coding partners through a swipe-based interface. Think of it as "Tinder for Developers" — but instead of dating profiles, users match based on coding skills, tech stacks, and project interests.
 
 ### ✨ Key Features
 
-- 🔄 Swipe-based matching system for developers
-- 💬 Real-time chat with matches
-- 🛠 Tech stack compatibility matching
-- 📊 Code snippet sharing
-- 👥 Project collaboration opportunities
-- 🔐 Secure authentication system
-- 📱 Responsive design for all devices
+- 🔄 **Swipe-Based Matching System**: Find developers with complementary skills.
+- 💬 **Real-Time Chat**: Seamlessly communicate with matches.
+- 🛠 **Tech Stack Compatibility**: Match based on coding expertise.
+- 📊 **Code Snippet Sharing**: Share snippets in real-time for collaboration.
+- 👥 **Project Collaboration**: Explore and join exciting projects.
+- 🔐 **Secure Authentication**: Robust and reliable security.
+- 📱 **Responsive Design**: Optimized for all devices.
+
+---
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- React.js
-- Tailwind CSS
-- Framer Motion
-- Socket.io Client
-- Axios
+- **React.js**
+- **Tailwind CSS**
+- **Framer Motion**
+- **Socket.io Client**
+- **Axios**
 
 ### Backend
-- Node.js
-- Express.js
-- MongoDB
-- JWT Authentication
-- Socket.io
+- **Express.js**
+- **MongoDB**
+- **JWT Authentication**
+- **Socket.io**
 
-## 🎯 Project Structure
-
-codeswipe/
-├── client/ # Frontend React application
-│ ├── public/ # Static files
-│ └── src/ # Source files
-│ ├── components/ # Reusable components
-│ ├── context/ # Context providers
-│ ├── pages/ # Page components
-│ └── services/ # API services
-└── server/ # Backend Node.js application
-├── controllers/ # Request handlers
-├── models/ # Database models
-├── routes/ # API routes
-└── middleware/ # Custom middleware
+---
 
 ## 🚀 Getting Started
 
-1. Clone the repository
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Aayush-Duhan/CodeSwipe.git
+cd CodeSwipe
+```
 
-bash
-git clone https://github.com/yourusername/codeswipe.git
-cd codeswipe
-
-
-2. Install dependencies
-bash
-# Install frontend dependencies
+### 2. Install Dependencies
+#### Frontend
+```bash
 cd client
 npm install
-
-# Install backend dependencies
+```
+#### Backend
+```bash
 cd ../server
 npm install
+```
 
+### 3. Set Up Environment Variables
+Create a `.env` file in the `server` directory with the following:
+```env
+MONGO_URI=your_mongo_connection_uri
+JWT_SECRET=your_jwt_secret_key
+PORT=port_number
+```
 
-3. Set up environment variables
-bash
-# In server directory
-cp .env.example .env
-# Add your MongoDB URI and JWT secret
-
-
-4. Run the application
-bash
-# Run backend (from server directory)
+### 4. Run the Application
+#### Backend
+```bash
+cd server
 npm run dev
-
-# Run frontend (from client directory)
+```
+#### Frontend
+```bash
+cd client
 npm start
+```
 
+---
 
 ## 📸 Screenshots
 
 <div align="center">
-  <img src="docs/assets/screenshot1.png" alt="Home Page" width="400"/>
-  <img src="docs/assets/screenshot2.png" alt="Swipe Interface" width="400"/>
+  <img src="client/src/images/matches.png" alt="Matches Page" width="400"/>
+  <img src="client/src/images/profile.png" alt="Profile Page" width="400"/>
+  <img src="client/src/images/requests.png" alt="Requests Page" width="400"/>
+  <img src="client/src/images/swipe_empty.png" alt="Swipes Empty Page" width="400"/>
+  <img src="client/src/images/swipe.png" alt="Swipes Page" width="400"/>
 </div>
 
-## 🎥 Demo
-
-[View Live Demo](https://codeswipe-demo.herokuapp.com)
+---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Here's how you can get started:
 
-1. Fork the repository
-2. Create your feature branch (git checkout -b feature/AmazingFeature)
-3. Commit your changes (git commit -m 'Add some AmazingFeature')
-4. Push to the branch (git push origin feature/AmazingFeature)
-5. Open a Pull Request
+1. **Fork the Repository**
+2. **Create Your Feature Branch**
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. **Commit Your Changes**
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. **Push to the Branch**
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. **Open a Pull Request**
+
+---
 
 ## 👥 Team
 
-- [Your Name](https://github.com/yourusername) - Full Stack Developer
-- [Team Member 2](https://github.com/teammember2) - Frontend Developer
-- [Team Member 3](https://github.com/teammember3) - Backend Developer
+- [Aayush](https://github.com/Aayush-Duhan) - Full Stack Developer
+- [Udit Sharma](https://github.com/UditSharma04) - Full Stack Developer
+
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 🙏 Acknowledgments
 
@@ -133,3 +143,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Made with ❤ for developers, by developers.</p>
   <p>© 2024 CodeSwipe. All rights reserved.</p>
 </div>
+
