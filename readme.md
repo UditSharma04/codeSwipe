@@ -1,7 +1,7 @@
 # 💻 CodeSwipe - Developer Matching Platform
 
 <div align="center">
-  <img src="client/images/logo.png" alt="CodeSwipe Logo" width="200"/>
+  <img src="client/src/images/logo.png" alt="CodeSwipe Logo" width="200"/>
   <p><em>Where Code Meets Connection</em></p>
 </div>
 
