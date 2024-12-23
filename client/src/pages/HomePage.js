@@ -61,13 +61,25 @@ const HomePage = () => {
               Connect with developers who matched with you! 
               Start collaborating on exciting projects. 💻
             </p>
-            <button
-              onClick={() => navigate('/matches')}
-              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90 w-full"
-            >
-              <i className="bi bi-people me-2"></i>
-              View Matches
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate('/matches')}
+                className="flex-1 bg-primary px-4 py-2 neubrutalism hover:opacity-90"
+              >
+                <i className="bi bi-people me-2"></i>
+                View Matches
+              </button>
+              <button
+                onClick={() => navigate('/chat')}
+                className="bg-black text-primary px-4 py-2 neubrutalism hover:opacity-90 transform transition-transform hover:scale-105"
+              >
+                <i className="bi bi-chat-dots-fill"></i>
+                <div className="flex h-2 w-2 relative mt-1">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>
