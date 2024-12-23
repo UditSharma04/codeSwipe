@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { searchMatches, removeMatch } from '../services/matchService';
+import { getMatches, searchMatches, removeMatch } from '../services/matchService';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '../components/ui/ConfirmModal';
 
@@ -17,60 +17,49 @@ const MatchesPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
 
-  const fetchMatches = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/matches', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMatches(response.data);
-    } catch (err) {
-      console.error('Failed to fetch matches', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async (query) => {
-    try {
-      setSearching(true);
-      const results = await searchMatches(query);
-      setMatches(results);
-    } catch (error) {
-      toast.error('Failed to search matches');
-    } finally {
-      setSearching(false);
-    }
-  };
-
   useEffect(() => {
-    if (searchDebounceRef.current) {
-      clearTimeout(searchDebounceRef.current);
-    }
-
-    if (searchQuery) {
-      searchDebounceRef.current = setTimeout(() => {
-        handleSearch(searchQuery);
-      }, 300);
-    } else {
-      fetchMatches();
-    }
-
-    return () => {
-      if (searchDebounceRef.current) {
-        clearTimeout(searchDebounceRef.current);
+    const fetchMatches = async () => {
+      try {
+        const data = await getMatches();
+        setMatches(data);
+      } catch (error) {
+        console.error('Failed to fetch matches:', error);
       }
     };
+
+    fetchMatches();
+  }, []);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      try {
+        const data = await searchMatches(searchQuery);
+        setMatches(data);
+      } catch (error) {
+        console.error('Error searching matches:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        handleSearch();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   const handleStartChat = (matchId) => {
     navigate(`/chat/${matchId}`);
   };
 
-  const handleRemoveMatch = (matchId, matchName) => {
-    setSelectedMatch({ id: matchId, name: matchName });
-    setModalOpen(true);
+  const handleRemoveMatch = async (matchId) => {
+    try {
+      await removeMatch(matchId);
+      setMatches(matches.filter(match => match._id !== matchId));
+    } catch (error) {
+      console.error('Error removing match:', error);
+    }
   };
 
   const handleConfirmRemove = async () => {
@@ -147,7 +136,7 @@ const MatchesPage = () => {
                     <div className="flex justify-between items-start mb-1">
                       <h2 className="text-xl font-bold">{match.username}</h2>
                       <button
-                        onClick={() => handleRemoveMatch(match._id, match.username)}
+                        onClick={() => handleRemoveMatch(match._id)}
                         className="text-red-400 hover:text-red-500 p-1"
                         title="Remove Match"
                       >
