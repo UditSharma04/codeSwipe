@@ -111,15 +111,6 @@ function App() {
               />
               
               <Route 
-                path="/profile/:matchId" 
-                element={
-                  <PrivateRoute>
-                    <MatchProfilePage />
-                  </PrivateRoute>
-                } 
-              />
-              
-              <Route 
                 path="/profile/:userId" 
                 element={
                   <PrivateRoute>

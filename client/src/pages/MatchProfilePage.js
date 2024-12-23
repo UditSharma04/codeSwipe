@@ -14,7 +14,9 @@ const MatchProfilePage = () => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
+        console.log('Fetching profile for userId:', userId);
         const data = await getUserProfile(userId);
+        console.log('Profile data received:', data);
         setProfile(data);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -27,6 +29,10 @@ const MatchProfilePage = () => {
 
     if (userId) {
       fetchProfile();
+    } else {
+      console.error('No userId provided');
+      setError('No user ID provided');
+      setLoading(false);
     }
   }, [userId]);
 

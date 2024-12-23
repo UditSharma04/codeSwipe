@@ -18,10 +18,16 @@ API.interceptors.request.use((config) => {
 
 export const getUserProfile = async (userId) => {
   try {
+    console.log('Making request to:', `${process.env.REACT_APP_API_URL}/api/users/profile/${userId}`); // Debug log
     const response = await API.get(`/profile/${userId}`);
+    console.log('Profile response:', response.data); // Debug log
     return response.data;
   } catch (error) {
-    console.error('Profile fetch error:', error.response || error);
+    console.error('Profile fetch error details:', {
+      response: error.response,
+      message: error.message,
+      config: error.config
+    });
     throw new Error(error.response?.data?.message || 'Failed to fetch user profile');
   }
 }; 
