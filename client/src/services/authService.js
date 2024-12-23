@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with base configuration
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api/auth', // Ensure this matches your backend port
+  baseURL: `${process.env.REACT_APP_API_URL}/api/auth`,
   headers: {
     'Content-Type': 'application/json'
   }

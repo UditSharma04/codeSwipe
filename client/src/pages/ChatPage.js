@@ -18,7 +18,7 @@ const ChatPage = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(process.env.REACT_APP_API_URL);
     setSocket(newSocket);
 
     return () => newSocket.disconnect();
@@ -28,7 +28,7 @@ const ChatPage = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/matches', {
+        const response = await axios.get('https://codeswipe.onrender.com/api/matches', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -53,7 +53,7 @@ const ChatPage = () => {
       // Fetch chat history
       const fetchMessages = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/api/messages/${chatId}`, {
+          const response = await axios.get(`https://codeswipe.onrender.com/api/messages/${chatId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -100,7 +100,7 @@ const ChatPage = () => {
 
     // Save message to database
     try {
-      await axios.post('http://localhost:5000/api/messages', messageData, {
+      await axios.post('https://codeswipe.onrender.com/api/messages', messageData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
