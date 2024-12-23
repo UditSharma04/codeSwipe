@@ -75,7 +75,7 @@ const MatchProfilePage = () => {
             onClick={() => navigate('/chat')}
             className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
           >
-            Back to Chat
+            Chat
           </button>
         </div>
 
