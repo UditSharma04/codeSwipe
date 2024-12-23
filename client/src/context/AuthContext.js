@@ -11,9 +11,10 @@ const API = axios.create({
   }
 });
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+// Separate component for auth logic
+const AuthStateProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -68,6 +69,11 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Wrapper component that provides the context
+export const AuthProvider = ({ children }) => {
+  return <AuthStateProvider>{children}</AuthStateProvider>;
 };
 
 export const useAuth = () => {
