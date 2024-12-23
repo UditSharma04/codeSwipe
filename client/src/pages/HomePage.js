@@ -1,43 +1,74 @@
 // src/pages/HomePage.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Welcome to CodeSwipe</h1>
-        
-        {user && (
-          <div className="mb-6 text-center">
-            <p className="text-xl">Hello, {user.username}!</p>
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Welcome Section */}
+        <div className="bg-white neubrutalism p-6 mb-6">
+          <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.username}! 👋</h1>
+          <p className="text-gray-600">Ready to connect with amazing developers?</p>
+        </div>
 
-        <div className="space-y-4">
-          <Link 
-            to="/swipe" 
-            className="block w-full bg-primary hover:bg-blue-600 text-white py-3 rounded text-center"
-          >
-            Start Swiping
-          </Link>
-          
-          <Link 
-            to="/matches" 
-            className="block w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded text-center"
-          >
-            View Matches
-          </Link>
-          
-          <Link 
-            to="/profile" 
-            className="block w-full bg-gray-500 hover:bg-gray-600 text-white py-3 rounded text-center"
-          >
-            Edit Profile
-          </Link>
+        {/* Profile Update Reminder */}
+        <div className="bg-primary text-black neubrutalism p-6 mb-6">
+          <div className="flex items-start space-x-4">
+            <div className="text-4xl">🌟</div>
+            <div>
+              <h2 className="text-xl font-bold mb-2">Keep Your Profile Shining!</h2>
+              <p className="mb-4">
+                Just like your code, your profile deserves regular updates! 
+                Share your latest projects, new tech skills, and awesome code snippets 
+                to attract the perfect coding partners. ✨
+              </p>
+              <button
+                onClick={() => navigate('/profile/edit')}
+                className="bg-black text-primary px-4 py-2 neubrutalism hover:opacity-90"
+              >
+                <i className="bi bi-pencil me-2"></i>
+                Update Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white neubrutalism p-6">
+            <h3 className="text-xl font-bold mb-4">Start Swiping</h3>
+            <p className="text-gray-600 mb-4">
+              Discover developers who share your passion for coding! 
+              Find your next project partner. 🤝
+            </p>
+            <button
+              onClick={() => navigate('/swipe')}
+              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90 w-full"
+            >
+              <i className="bi bi-arrow-left-right me-2"></i>
+              Go to Swipe
+            </button>
+          </div>
+
+          <div className="bg-white neubrutalism p-6">
+            <h3 className="text-xl font-bold mb-4">Check Your Matches</h3>
+            <p className="text-gray-600 mb-4">
+              Connect with developers who matched with you! 
+              Start collaborating on exciting projects. 💻
+            </p>
+            <button
+              onClick={() => navigate('/matches')}
+              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90 w-full"
+            >
+              <i className="bi bi-people me-2"></i>
+              View Matches
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -119,6 +119,15 @@ function App() {
                 } 
               />
               
+              <Route 
+                path="/profile/edit" 
+                element={
+                  <PrivateRoute>
+                    <ProfileSetup />
+                  </PrivateRoute>
+                } 
+              />
+              
               {/* Catch-all route */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

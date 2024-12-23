@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { updateProfile } from '../../services/authService';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { updateProfile, getUserProfile } from '../../services/authService';
 import { toast } from 'react-hot-toast';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isEditing = location.pathname === '/profile/edit';
+  
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEditing);
   const [formData, setFormData] = useState({
     techStack: [],
     bio: '',
@@ -24,7 +29,47 @@ const ProfileSetup = () => {
     availability: 'Looking for collaborators',
     experience: 'Intermediate'
   });
-  const [loading, setLoading] = useState(false);
+
+  // Fetch existing profile data if editing
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        if (isEditing) {
+          setInitialLoading(true);
+          const profileData = await getUserProfile();
+          console.log('Fetched profile data:', profileData);
+          
+          // Update form with existing data
+          setFormData({
+            techStack: profileData.techStack || [],
+            bio: profileData.bio || '',
+            githubUsername: profileData.githubUsername || '',
+            favoriteProject: profileData.favoriteProject || {
+              title: '',
+              description: '',
+              techUsed: [],
+              githubUrl: ''
+            },
+            codeSnippet: profileData.codeSnippet || {
+              language: '',
+              code: '',
+              description: ''
+            },
+            interests: profileData.interests || [],
+            availability: profileData.availability || 'Looking for collaborators',
+            experience: profileData.experience || 'Intermediate'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        toast.error('Failed to load profile data');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [isEditing]);
 
   const techOptions = [
     'JavaScript', 'Python', 'Java', 'C++', 'React', 
@@ -60,10 +105,23 @@ const ProfileSetup = () => {
     }
   };
 
+  if (initialLoading) {
+    return (
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading profile data...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Setup Your CodeSwipe Profile</h1>
+        <h1 className="text-2xl font-bold mb-6">
+          {isEditing ? 'Edit Your Profile' : 'Setup Your CodeSwipe Profile'}
+        </h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Tech Stack */}
@@ -197,7 +255,7 @@ const ProfileSetup = () => {
               loading ? 'opacity-50' : 'hover:opacity-90'
             }`}
           >
-            {loading ? 'Saving...' : 'Save Profile'}
+            {loading ? 'Saving...' : isEditing ? 'Update Profile' : 'Save Profile'}
           </button>
         </form>
       </div>
