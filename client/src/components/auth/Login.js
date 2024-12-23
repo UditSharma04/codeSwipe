@@ -18,9 +18,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      const response = await login(formData);
       toast.success('Login successful!');
-      navigate('/'); // Redirect to home page after successful login
+      
+      // Redirect based on profile completion
+      if (response.isProfileComplete) {
+        navigate('/');
+      } else {
+        navigate('/profile/setup');
+      }
     } catch (error) {
       toast.error(error.message || 'Failed to login');
     } finally {
@@ -71,9 +77,12 @@ const Login = () => {
           <div className="flex items-center justify-between">
             <button
               type="submit"
-              className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              disabled={loading}
+              className={`bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
             <Link 
               to="/register" 
