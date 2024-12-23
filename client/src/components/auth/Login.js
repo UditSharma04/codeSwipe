@@ -18,15 +18,9 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await login(formData);
-      toast.success('Login successful!');
-      
-      // Redirect based on profile completion
-      if (response.isProfileComplete) {
-        navigate('/');
-      } else {
-        navigate('/profile/setup');
-      }
+      await login(formData);
+      toast.success('Welcome back!');
+      navigate('/');
     } catch (error) {
       toast.error(error.message || 'Failed to login');
     } finally {
