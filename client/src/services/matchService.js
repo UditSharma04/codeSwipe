@@ -18,9 +18,12 @@ API.interceptors.request.use((config) => {
 
 export const getMatches = async () => {
   try {
+    console.log('Making request to:', `${process.env.REACT_APP_API_URL}/api/matches`); // Debug log
     const response = await API.get('/');
+    console.log('Response received:', response.data); // Debug log
     return response.data;
   } catch (error) {
+    console.error('Match service error:', error.response || error); // Enhanced error logging
     throw new Error(error.response?.data?.message || 'Failed to fetch matches');
   }
 };
