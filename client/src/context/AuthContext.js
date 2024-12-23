@@ -1,5 +1,5 @@
 // src/context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -14,18 +14,23 @@ const API = axios.create({
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setIsAuthenticated(false);
+    navigate('/login');
+  }, [navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Verify token and set auth state
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.exp * 1000 < Date.now()) {
-          // Token expired
           logout();
         } else {
           setIsAuthenticated(true);
@@ -36,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         logout();
       }
     }
-  }, []);
+  }, [logout]);
 
   const login = async (credentials) => {
     try {
@@ -51,18 +56,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setIsAuthenticated(false);
-    navigate('/login');
+  const value = {
+    user,
+    isAuthenticated,
+    login,
+    logout
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
