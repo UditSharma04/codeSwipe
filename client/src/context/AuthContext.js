@@ -1,85 +1,70 @@
 // src/context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
-// Create API instance
-const API = axios.create({
-  baseURL: `${process.env.REACT_APP_API_URL}/api/auth`,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+const AuthContext = createContext();
 
-const AuthContext = createContext(null);
-
-// Separate component for auth logic
-const AuthStateProvider = ({ children }) => {
-  const navigate = useNavigate();
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setIsAuthenticated(false);
-    navigate('/login');
-  }, [navigate]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.exp * 1000 < Date.now()) {
-          logout();
-        } else {
+        const decoded = jwtDecode(token);
+        
+        // Check if token is expired
+        if (decoded.exp * 1000 > Date.now()) {
+          setUser(decoded);
           setIsAuthenticated(true);
-          setUser({ id: payload.id });
+        } else {
+          // Token expired, clear it
+          localStorage.removeItem('token');
+          setUser(null);
+          setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error('Token validation error:', error);
-        logout();
+        // Invalid token
+        localStorage.removeItem('token');
+        setUser(null);
+        setIsAuthenticated(false);
       }
     }
-  }, [logout]);
+    
+    setLoading(false);
+  }, []);
 
-  const login = async (credentials) => {
-    try {
-      const response = await API.post('/login', credentials);
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setUser(user);
-      setIsAuthenticated(true);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+  const login = (token) => {
+    localStorage.setItem('token', token);
+    const decoded = jwtDecode(token);
+    setUser(decoded);
+    setIsAuthenticated(true);
   };
 
-  const value = {
-    user,
-    isAuthenticated,
-    login,
-    logout
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setIsAuthenticated(false);
   };
+
+  // If still loading, you might want to show a loading screen
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      login, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Wrapper component that provides the context
-export const AuthProvider = ({ children }) => {
-  return <AuthStateProvider>{children}</AuthStateProvider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
