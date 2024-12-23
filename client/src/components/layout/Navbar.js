@@ -107,8 +107,26 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-3">
+        <div className="hidden md:flex gap-3 items-center">
+          {/* Chat Button */}
+          <button
+            onClick={() => navigate('/chat')}
+            className={`px-4 py-2 flex items-center gap-2 transform transition-transform hover:scale-105 ${
+              isActive('/chat')
+                ? 'bg-black text-primary neubrutalism'
+                : 'bg-black text-primary neubrutalism hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]'
+            }`}
+          >
+            <i className="bi bi-chat-dots-fill"></i>
+            Chat
+            <div className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </div>
+          </button>
+
           {menuItems.map(renderButton)}
+          
           <button 
             onClick={() => {
               // Add logout logic here
@@ -122,13 +140,31 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden bg-white p-2 neubrutalism relative"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <i className={`bi ${isMenuOpen ? 'bi-x-lg' : 'bi-list'} text-xl`}></i>
-          <Badge count={requestCount} />
-        </button>
+        <div className="md:hidden flex items-center gap-3">
+          {/* Mobile Chat Button */}
+          <button
+            onClick={() => navigate('/chat')}
+            className={`p-2 flex items-center gap-1 transform transition-transform hover:scale-105 ${
+              isActive('/chat')
+                ? 'bg-black text-primary neubrutalism'
+                : 'bg-black text-primary neubrutalism hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.5)]'
+            }`}
+          >
+            <i className="bi bi-chat-dots-fill"></i>
+            <div className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </div>
+          </button>
+
+          <button 
+            className="bg-white p-2 neubrutalism relative"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <i className={`bi ${isMenuOpen ? 'bi-x-lg' : 'bi-list'} text-xl`}></i>
+            <Badge count={requestCount} />
+          </button>
+        </div>
 
         {/* Mobile Menu Overlay */}
         <AnimatePresence>

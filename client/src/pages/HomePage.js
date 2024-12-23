@@ -61,13 +61,15 @@ const HomePage = () => {
               Connect with developers who matched with you! 
               Start collaborating on exciting projects. 💻
             </p>
-            <button
-              onClick={() => navigate('/matches')}
-              className="bg-primary px-4 py-2 neubrutalism hover:opacity-90 w-full"
-            >
-              <i className="bi bi-people me-2"></i>
-              View Matches
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate('/matches')}
+                className="flex-1 bg-primary px-4 py-2 neubrutalism hover:opacity-90"
+              >
+                <i className="bi bi-people me-2"></i>
+                View Matches
+              </button>
+            </div>
           </div>
         </div>
       </div>
