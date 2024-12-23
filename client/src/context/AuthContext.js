@@ -1,6 +1,6 @@
 // src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token);
         setUser(decoded);
         setIsAuthenticated(true);
       } catch (error) {
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
       if (data.token) {
         localStorage.setItem('token', data.token);
-        const decoded = jwt_decode(data.token);
+        const decoded = jwtDecode(data.token);
         setUser(decoded);
         setIsAuthenticated(true);
         return data;
