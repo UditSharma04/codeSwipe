@@ -89,9 +89,9 @@ const Navbar = () => {
           : isActive(item.path) 
             ? 'bg-black text-white' 
             : 'bg-white hover:bg-gray-100'
-      }`}
+      } ${item.special ? 'flex items-center gap-2' : ''}`}
     >
-      <i className={`bi ${item.icon} me-2`}></i>
+      <i className={`bi ${item.icon} ${item.special ? 'text-lg' : 'me-2'}`}></i>
       {item.label}
       {item.badge !== undefined && <Badge count={item.badge} />}
       {item.special && (
@@ -118,8 +118,8 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-3">
-          {menuItems.map(renderButton)}
+        <div className="hidden md:flex items-center gap-3">
+          {menuItems.map((item) => renderButton(item))}
           <button 
             onClick={() => {
               // Add logout logic here
@@ -161,26 +161,7 @@ const Navbar = () => {
                 className="absolute top-full right-0 left-0 mx-4 mt-4 bg-white neubrutalism p-4 z-50"
               >
                 <div className="flex flex-col gap-2">
-                  {menuItems.map(item => (
-                    <button 
-                      key={item.path}
-                      onClick={() => {
-                        navigate(item.path);
-                        setIsMenuOpen(false);
-                      }} 
-                      className={`px-4 py-2 neubrutalism text-left relative ${
-                        isActive(item.path) 
-                          ? 'bg-black text-white' 
-                          : 'bg-gray-50 hover:bg-gray-100'
-                      }`}
-                    >
-                      <i className={`bi ${item.icon} me-2`}></i>
-                      {item.label}
-                      {item.badge !== undefined && (
-                        <Badge count={item.badge} />
-                      )}
-                    </button>
-                  ))}
+                  {menuItems.map((item) => renderButton(item))}
                   <button 
                     onClick={() => {
                       navigate('/login');
