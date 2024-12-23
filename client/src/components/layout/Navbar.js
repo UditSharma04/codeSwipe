@@ -21,6 +21,12 @@ const Navbar = () => {
     { path: '/swipe', icon: 'bi-shuffle', label: 'Swipe' },
     { path: '/matches', icon: 'bi-heart', label: 'Matches' },
     { 
+      path: '/chat', 
+      icon: 'bi-chat-dots-fill', 
+      label: 'Chat',
+      special: true
+    },
+    { 
       path: '/requests', 
       icon: 'bi-bell', 
       label: 'Requests',
@@ -78,14 +84,19 @@ const Navbar = () => {
         if (isMenuOpen) setIsMenuOpen(false);
       }} 
       className={`px-4 py-2 neubrutalism relative ${
-        isActive(item.path) 
-          ? 'bg-black text-white' 
-          : 'bg-white hover:bg-gray-100'
+        item.special 
+          ? 'bg-black text-primary hover:bg-opacity-90 transform hover:-translate-y-0.5 transition-transform duration-200' 
+          : isActive(item.path) 
+            ? 'bg-black text-white' 
+            : 'bg-white hover:bg-gray-100'
       }`}
     >
       <i className={`bi ${item.icon} me-2`}></i>
       {item.label}
       {item.badge !== undefined && <Badge count={item.badge} />}
+      {item.special && (
+        <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+      )}
     </button>
   );
 
