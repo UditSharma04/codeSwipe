@@ -1,66 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import toast from 'react-hot-toast';
-import { socket } from '../services/socket';
-import { getRequestCount } from '../services/swipeService';
+import { getRequests, respondToRequest } from '../services/requestService';
+import { toast } from 'react-hot-toast';
 
 const RequestsPage = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user } = useAuth();
-
-  const fetchRequests = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/swipe/requests', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setRequests(response.data);
-    } catch (err) {
-      console.error('Failed to fetch requests', err);
-      setError(err.response?.data?.message || 'Failed to fetch requests');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        setLoading(true);
+        const data = await getRequests();
+        setRequests(data);
+      } catch (error) {
+        console.error('Failed to fetch requests:', error);
+        setError(error.message);
+        toast.error('Failed to load connection requests');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchRequests();
   }, []);
 
-  const handleRequest = async (targetUserId, action) => {
+  const handleResponse = async (targetUserId, action) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:5000/api/swipe/respond', 
-        { targetUserId, action },
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-
-      // Show success toast
+      await respondToRequest(targetUserId, action);
+      
+      // Remove the request from the list
+      setRequests(prev => prev.filter(req => req._id !== targetUserId));
+      
+      // Show success message
       toast.success(
         action === 'accept' 
-          ? '🎉 Connection accepted!' 
-          : '👋 Request declined'
+          ? 'Connection accepted!' 
+          : 'Request declined'
       );
-
-      // Remove the request from the list immediately
-      setRequests(prevRequests => 
-        prevRequests.filter(request => request._id !== targetUserId)
-      );
-
-      // Update request count in Navbar
-      const newCount = await getRequestCount();
-      socket.emit('update_request_count', { 
-        userId: user._id,
-        count: newCount 
-      });
-
-    } catch (err) {
-      console.error('Failed to process request', err);
-      toast.error('Failed to process request');
+    } catch (error) {
+      console.error('Error responding to request:', error);
+      toast.error('Failed to process response');
     }
   };
 
@@ -77,8 +57,8 @@ const RequestsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 p-6">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+      <div className="container mx-auto px-4 py-6">
+        <div className="bg-white neubrutalism p-6 text-center">
           <p className="text-red-500">Error: {error}</p>
         </div>
       </div>
@@ -88,53 +68,50 @@ const RequestsPage = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-primary neubrutalism p-6 mb-8">
-          <h1 className="text-3xl font-bold text-black">Connection Requests</h1>
+        <div className="bg-white neubrutalism p-6 mb-8">
+          <h1 className="text-3xl font-bold">Connection Requests</h1>
         </div>
-        
+
         {requests.length === 0 ? (
           <div className="bg-white neubrutalism p-8 text-center">
             <i className="bi bi-inbox text-4xl mb-4 text-gray-400"></i>
             <p className="text-gray-600">No pending connection requests</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
             {requests.map((request) => (
               <div 
                 key={request._id} 
-                className="bg-white neubrutalism p-6 hover:shadow-brutal-hover transition-all duration-200"
+                className="bg-white neubrutalism p-6"
               >
-                <div className="mb-4">
-                  <h2 className="text-xl font-bold mb-2">{request.username}</h2>
-                  <p className="text-gray-600 mb-4">{request.bio}</p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {request.techStack?.map((tech, index) => (
-                      <span 
-                        key={index} 
-                        className="bg-gray-200 text-black px-2 py-1 neubrutalism text-sm"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold mb-2">{request.username}</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {request.techStack?.map((tech, index) => (
+                        <span 
+                          key={index}
+                          className="bg-gray-100 px-2 py-1 neubrutalism text-sm"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleRequest(request._id, 'accept')}
-                    className="flex-1 bg-primary text-black px-4 py-2 neubrutalism hover:opacity-90 font-medium"
-                  >
-                    <i className="bi bi-check-lg me-2"></i>
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleRequest(request._id, 'decline')}
-                    className="flex-1 bg-gray-200 text-black px-4 py-2 neubrutalism hover:bg-gray-300"
-                  >
-                    <i className="bi bi-x-lg me-2"></i>
-                    Decline
-                  </button>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    <button
+                      onClick={() => handleResponse(request._id, 'accept')}
+                      className="flex-1 sm:flex-initial bg-primary px-6 py-2 neubrutalism hover:opacity-90"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleResponse(request._id, 'decline')}
+                      className="flex-1 sm:flex-initial bg-gray-100 px-6 py-2 neubrutalism hover:bg-gray-200"
+                    >
+                      Decline
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

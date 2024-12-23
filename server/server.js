@@ -10,7 +10,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ['https://code-swipe-three.vercel.app', 'http://localhost:3000'],
     methods: ["GET", "POST"]
   }
 });
@@ -44,7 +44,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['https://code-swipe-three.vercel.app', 'http://localhost:3000'],
   credentials: true
 }));
 app.use(express.json());
@@ -55,6 +55,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/swipe', require('./routes/swipeRoutes'));
 app.use('/api/matches', require('./routes/matchRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

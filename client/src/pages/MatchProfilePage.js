@@ -1,59 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getUserProfile } from '../services/profileService';
+import { toast } from 'react-hot-toast';
 
 const MatchProfilePage = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { matchId } = useParams();
+  const [error, setError] = useState(null);
+  const { userId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/matches/${matchId}/profile`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        setProfile(response.data);
-        setLoading(false);
+        setLoading(true);
+        console.log('Fetching profile for userId:', userId);
+        const data = await getUserProfile(userId);
+        console.log('Profile data received:', data);
+        setProfile(data);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Failed to fetch profile:', error);
+        setError(error.message);
+        toast.error('Failed to load profile');
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, [matchId]);
+    if (userId) {
+      fetchProfile();
+    } else {
+      console.error('No userId provided');
+      setError('No user ID provided');
+      setLoading(false);
+    }
+  }, [userId]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-[calc(100vh-100px)]">
+        <div className="bg-white neubrutalism p-4 sm:p-6">
+          <i className="bi bi-code-slash text-xl me-2"></i>
+          Loading profile...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="bg-white neubrutalism p-6 text-center">
+          <p className="text-red-500">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 bg-primary px-4 py-2 neubrutalism"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <div className="bg-white neubrutalism p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-black font-bold text-2xl border-3 border-black">
-              {profile?.username.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{profile?.username}</h1>
-              <p className="text-gray-600">{profile?.email}</p>
-            </div>
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto bg-white neubrutalism p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{profile?.username}</h1>
+            <p className="text-gray-600">{profile?.email}</p>
           </div>
-          <button 
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-primary neubrutalism"
+          <button
+            onClick={() => navigate('/chat')}
+            className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
           >
-            Back to Chat
+            Chat
           </button>
         </div>
 
@@ -64,7 +86,7 @@ const MatchProfilePage = () => {
             {profile?.techStack?.map((tech, index) => (
               <span 
                 key={index}
-                className="px-3 py-1 bg-primary neubrutalism text-sm"
+                className="bg-gray-100 px-3 py-1.5 neubrutalism"
               >
                 {tech}
               </span>
@@ -73,12 +95,14 @@ const MatchProfilePage = () => {
         </div>
 
         {/* Bio */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-3">Bio</h2>
-          <p className="text-gray-700">{profile?.bio}</p>
-        </div>
+        {profile?.bio && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-3">Bio</h2>
+            <p className="text-gray-600">{profile.bio}</p>
+          </div>
+        )}
 
-        {/* GitHub */}
+        {/* GitHub Username */}
         {profile?.githubUsername && (
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-3">GitHub</h2>
@@ -86,10 +110,9 @@ const MatchProfilePage = () => {
               href={`https://github.com/${profile.githubUsername}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-700 hover:text-black"
+              className="text-blue-500 hover:underline"
             >
-              <i className="bi bi-github text-xl"></i>
-              {profile.githubUsername}
+              @{profile.githubUsername}
             </a>
           </div>
         )}

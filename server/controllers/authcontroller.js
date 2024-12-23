@@ -142,33 +142,54 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
+    console.log('Received profile update request:', req.body); // Debug log
+    
     const user = await User.findById(req.user.id);
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update only allowed fields
-    const allowedUpdates = ['techStack', 'bio', 'favoriteProject'];
-    const updates = {};
-    
-    Object.keys(req.body).forEach(key => {
-      if (allowedUpdates.includes(key)) {
-        updates[key] = req.body[key];
+    // Update allowed fields
+    const allowedUpdates = [
+      'techStack',
+      'bio',
+      'githubUsername',
+      'favoriteProject',
+      'codeSnippet',
+      'interests',
+      'availability',
+      'experience'
+    ];
+
+    allowedUpdates.forEach(field => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
       }
     });
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user.id,
-      { $set: updates },
-      { new: true, runValidators: true }
-    ).select('-password');
+    await user.save();
+    console.log('Profile updated successfully:', user); // Debug log
 
-    res.json(updatedUser);
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        techStack: user.techStack,
+        bio: user.bio,
+        githubUsername: user.githubUsername,
+        favoriteProject: user.favoriteProject,
+        codeSnippet: user.codeSnippet,
+        interests: user.interests,
+        availability: user.availability,
+        experience: user.experience
+      }
+    });
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({ 
-      message: 'Error updating profile',
+      message: 'Server error updating profile',
       error: error.message 
     });
   }

@@ -111,7 +111,7 @@ function App() {
               />
               
               <Route 
-                path="/profile/:matchId" 
+                path="/profile/:userId" 
                 element={
                   <PrivateRoute>
                     <MatchProfilePage />

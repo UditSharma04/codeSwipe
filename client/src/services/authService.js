@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with base configuration
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api/auth', // Ensure this matches your backend port
+  baseURL: `${process.env.REACT_APP_API_URL}/api/auth`,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -70,10 +70,15 @@ export const getUserProfile = async () => {
 
 export const updateProfile = async (profileData) => {
   try {
+    console.log('Sending profile update request with data:', profileData); // Debug log
     const token = localStorage.getItem('token');
     const response = await API.put('/profile', profileData, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
+    console.log('Profile update response:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Profile Update Error:', error.response?.data || error.message);
