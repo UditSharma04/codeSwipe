@@ -5,7 +5,6 @@
   <p><em>Where Code Meets Connection</em></p>
 </div>
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Hackathon Ready](https://img.shields.io/badge/Hackathon-Ready-success)](https://github.com/yourusername/codeswipe)
 
 ---
@@ -125,11 +124,6 @@ We welcome contributions! Here's how you can get started:
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 🙏 Acknowledgments
 
