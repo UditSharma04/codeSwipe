@@ -16,12 +16,22 @@ CodeSwipe is an innovative developer matching platform that connects programmers
 ### ✨ Key Features
 
 - 🔄 **Swipe-Based Matching System**: Find developers with complementary skills.
-- 💬 **Real-Time Chat**: Seamlessly communicate with matches.
-- 🛠 **Tech Stack Compatibility**: Match based on coding expertise.
-- 📊 **Code Snippet Sharing**: Share snippets in real-time for collaboration.
+- 💬 **Real-Time Chat**: Seamlessly communicate with matches through our integrated chat system.
+- 🛠 **Tech Stack Compatibility**: Match based on coding expertise and shared technologies.
+- 📊 **Code Snippet Sharing**: Share and discuss code snippets in real-time.
 - 👥 **Project Collaboration**: Explore and join exciting projects.
-- 🔐 **Secure Authentication**: Robust and reliable security.
-- 📱 **Responsive Design**: Optimized for all devices.
+- 🔐 **Secure Authentication**: JWT-based authentication system.
+- 📱 **Responsive Design**: Optimized for all devices with a mobile-first approach.
+
+### 🆕 Latest Updates
+
+- ⚡ **Quick Access Chat**: Direct chat access from homepage and match profiles
+- 🔔 **Real-time Notifications**: Socket.io powered request notifications
+- 🎨 **Neubrutalism Design**: Modern, distinctive UI design language
+- 📱 **Enhanced Mobile Navigation**: Improved mobile menu with quick actions
+- 🔄 **Live Request Counter**: Real-time update of connection requests
+- 💫 **Animated Interactions**: Smooth transitions and micro-interactions
+- 🎯 **Profile Completion Flow**: Guided profile setup process
 
 ---
 
@@ -87,8 +97,10 @@ npm start
 ## 📸 Screenshots
 
 <div align="center">
+  <img src="client/src/images/home.png" alt="Swipes Page" width="400"/>
   <img src="client/src/images/matches.png" alt="Matches Page" width="400"/>
   <img src="client/src/images/profile.png" alt="Profile Page" width="400"/>
+  <img src="client/src/images/edit_profile.png" alt="Profile Page" width="400"/>
   <img src="client/src/images/requests.png" alt="Requests Page" width="400"/>
   <img src="client/src/images/swipe_empty.png" alt="Swipes Empty Page" width="400"/>
   <img src="client/src/images/swipe.png" alt="Swipes Page" width="400"/>
