@@ -119,6 +119,15 @@ function App() {
                 } 
               />
               
+              <Route 
+                path="/profile/:userId" 
+                element={
+                  <PrivateRoute>
+                    <MatchProfilePage />
+                  </PrivateRoute>
+                } 
+              />
+              
               {/* Catch-all route */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

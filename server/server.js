@@ -55,6 +55,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/swipe', require('./routes/swipeRoutes'));
 app.use('/api/matches', require('./routes/matchRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
