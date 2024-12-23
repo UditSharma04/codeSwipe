@@ -1,67 +1,56 @@
 // src/context/AuthContext.js
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
     if (token) {
+      // Verify token and set auth state
       try {
-        const decoded = jwtDecode(token);
-        
-        // Check if token is expired
-        if (decoded.exp * 1000 > Date.now()) {
-          setUser(decoded);
-          setIsAuthenticated(true);
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          // Token expired
+          logout();
         } else {
-          // Token expired, clear it
-          localStorage.removeItem('token');
-          setUser(null);
-          setIsAuthenticated(false);
+          setIsAuthenticated(true);
+          setUser({ id: payload.id });
         }
       } catch (error) {
-        // Invalid token
-        localStorage.removeItem('token');
-        setUser(null);
-        setIsAuthenticated(false);
+        console.error('Token validation error:', error);
+        logout();
       }
     }
-    
-    setLoading(false);
   }, []);
 
-  const login = (token) => {
-    localStorage.setItem('token', token);
-    const decoded = jwtDecode(token);
-    setUser(decoded);
-    setIsAuthenticated(true);
+  const login = async (credentials) => {
+    try {
+      const response = await API.post('/login', credentials);
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setUser(user);
+      setIsAuthenticated(true);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);
+    navigate('/login');
   };
 
-  // If still loading, you might want to show a loading screen
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      login, 
-      logout 
-    }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

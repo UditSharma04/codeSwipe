@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const API = axios.create({
   baseURL: `${process.env.REACT_APP_API_URL}/api/swipe`,
@@ -16,11 +17,27 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Add response interceptor to handle auth errors
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const getRequests = async () => {
   try {
     const response = await API.get('/requests');
     return response.data;
   } catch (error) {
+    if (error.response?.status === 401) {
+      throw new Error('Please login again');
+    }
     throw new Error(error.response?.data?.message || 'Failed to fetch requests');
   }
 };
