@@ -66,10 +66,10 @@ const ProfilePage = () => {
             <h1 className="text-3xl font-bold">Your Profile</h1>
             <div className="flex gap-3">
               <button 
-                onClick={() => navigate('/profile/setup')}
+                onClick={() => navigate('/profile/edit')}
                 className="bg-primary px-4 py-2 neubrutalism hover:opacity-90"
               >
-                <i className="bi bi-gear-fill me-2"></i>
+                <i className="bi bi-pencil me-2"></i>
                 Edit Profile
               </button>
               <button 

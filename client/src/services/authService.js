@@ -57,6 +57,7 @@ export const getUserProfile = async () => {
     const response = await API.get('/profile', {
       headers: { Authorization: `Bearer ${token}` }
     });
+    console.log('Fetched profile data:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Profile Fetch Error:', error.response?.data || error.message);
