@@ -91,15 +91,16 @@ const ProfileSetup = () => {
     setLoading(true);
 
     try {
-      console.log('Submitting profile data:', formData); // Debug log
       const response = await updateProfile(formData);
-      console.log('Profile update response:', response); // Debug log
-      
       toast.success('Profile updated successfully!');
       navigate('/swipe');
     } catch (error) {
-      console.error('Profile setup error:', error);
-      toast.error(error.message || 'Failed to update profile');
+      // Show more user-friendly error message
+      const errorMessage = error.message === 'This GitHub username is already linked to another account'
+        ? 'This GitHub username is already in use. Please use a different one.'
+        : 'Failed to update profile. Please try again.';
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

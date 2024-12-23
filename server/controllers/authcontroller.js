@@ -142,11 +142,24 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    console.log('Received profile update request:', req.body); // Debug log
-    
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    // If githubUsername is being updated and it's different from current
+    if (req.body.githubUsername && req.body.githubUsername !== user.githubUsername) {
+      // Check if githubUsername is already taken
+      const existingUser = await User.findOne({ 
+        githubUsername: req.body.githubUsername,
+        _id: { $ne: user._id } // Exclude current user from check
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ 
+          message: 'This GitHub username is already linked to another account' 
+        });
+      }
     }
 
     // Update allowed fields
@@ -168,7 +181,6 @@ const updateUserProfile = async (req, res) => {
     });
 
     await user.save();
-    console.log('Profile updated successfully:', user); // Debug log
 
     res.json({
       message: 'Profile updated successfully',
@@ -188,6 +200,15 @@ const updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Profile update error:', error);
+    
+    // Handle duplicate key error specifically
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        message: 'This GitHub username is already linked to another account',
+        error: error.message 
+      });
+    }
+
     res.status(500).json({ 
       message: 'Server error updating profile',
       error: error.message 
